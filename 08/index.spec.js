@@ -23,7 +23,7 @@
  */
 
 const path = require('path');
-const {compute} = require('./index');
+const {compute, fixAndCompute} = require('./index');
 
 describe('day08', () => {
   it('should compute from sample', async () => {
@@ -34,5 +34,15 @@ describe('day08', () => {
   it('should compute from input', async () => {
     const result = await compute(path.join(__dirname, 'input.txt'));
     expect(result).toBe(1797);
+  });
+
+  it('should backtrack and compute accumulator once operations and 100% completed from sample', async () => {
+    const result = await fixAndCompute(path.join(__dirname, 'sample.txt'));
+    expect(result).toBe(8);
+  });
+
+  it('should backtrack and compute accumulator once operations and 100% completed from input', async () => {
+    const result = await fixAndCompute(path.join(__dirname, 'input.txt'));
+    expect(result).toBe(1036);
   });
 });

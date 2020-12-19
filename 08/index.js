@@ -25,42 +25,129 @@
 const {readLines} = require('../00/index');
 
 /**
+ * Compute the value of the accumulator after last operation before finding the loop in
+ * the list of operations is executed.
+ *
+ * @param {string} file File path.
+ * @returns {Promise<number>} The accumulator value.
+ */
+function compute(file) {
+  return readLines(file).then((lines) => {
+    const operations = scanOperation(lines);
+    const result = computeSteps(operations);
+    if (!result.loop) {
+      throw new Error('Cannot find loop in given operations');
+    }
+
+    const steps = result.steps;
+    const lastStep = lastOf(steps);
+    return lastStep.acc;
+  });
+}
+
+/**
  * Compute the index of the last operation before finding the loop in
  * the list of operations.
  *
  * @param {string} file File path.
  * @returns {Promise<number>} The last operation index before the loop.
  */
-function compute(file) {
+function fixAndCompute(file) {
   return readLines(file).then((lines) => {
     const operations = scanOperation(lines);
-    const nbOperations = operations.length;
-
-    let acc = 0;
-    let idx = 0;
-
-    while (idx >= 0 && idx < nbOperations) {
-      const op = operations[idx];
-      if (op.counter > 0) {
-        return acc;
-      }
-
-      const id = op.id;
-      if (id === 'acc') {
-        acc += op.value;
-        idx++;
-      } else if (id === 'jmp') {
-        idx += op.value;
-      } else if (id === 'nop') {
-        idx++;
-      }
-
-      op.counter++;
+    const result = computeSteps(operations);
+    const steps = result.steps;
+    if (!result.loop) {
+      return lastOf(steps).acc;
     }
 
-    // If we did not resolve, then it is a failure
-    throw new Error('Cannot find acc...');
+    // Now backtrack until we find the fix.
+    while (steps.length > 0) {
+      const step = steps.pop();
+      const idx = step.idx;
+      const operation = operations[idx];
+
+      const id = operation.id;
+      if (id === 'jmp' || id === 'nop') {
+        // Try to change operation id and check if can go to the end without looping again.
+        operation.id = id === 'jmp' ? 'nop' : 'jmp';
+
+        const result = computeSteps(operations, steps.slice());
+        if (!result.loop) {
+          // We found the fix!
+          return lastOf(result.steps).acc;
+        }
+
+        // Revert change and continue backtracking.
+        operation.id = id;
+      }
+    }
+
+    throw new Error('Cannot find non looping sequence');
   });
+}
+
+/**
+ * Compute all steps until the end of the set of operations or until a loop has been detected.
+ *
+ * @param {Array<Object>} operations All the operations described by input.
+ * @param {Array<Object>} steps Initial steps already computed.
+ * @returns {Array<Object>} All steps, the last one being the last executed step.
+ */
+function computeSteps(operations, steps = []) {
+  const visitedOperations = new Set();
+  const nbOperations = operations.length;
+  const lastStep = steps.pop() || null;
+
+  let acc = 0;
+  let idx = 0;
+  if (lastStep) {
+    acc = lastStep.acc;
+    idx = lastStep.idx;
+  }
+
+  for (let i = 0; i < steps.length; ++i) {
+    visitedOperations.add(steps[i].idx);
+  }
+
+  while (idx >= 0 && idx < nbOperations) {
+    steps.push({
+      acc,
+      idx,
+    });
+
+    if (visitedOperations.has(idx)) {
+      return {
+        loop: true,
+        steps,
+      };
+    }
+
+    visitedOperations.add(idx);
+
+    const op = operations[idx];
+    const id = op.id;
+    if (id === 'acc') {
+      acc += op.value;
+      idx++;
+    } else if (id === 'jmp') {
+      idx += op.value;
+    } else if (id === 'nop') {
+      idx++;
+    }
+  }
+
+  // Do not forget to add the last step!
+  steps.push({
+    acc,
+    idx,
+  });
+
+  // If we did not resolve, then it is a failure
+  return {
+    loop: false,
+    steps,
+  };
 }
 
 /**
@@ -92,6 +179,21 @@ function toInt(value) {
   return sign === '-' ? nb * -1 : nb;
 }
 
+/**
+ * Get last element in given array, or `null` if array is empty.
+ *
+ * @param {Array<*>} array Array.
+ * @returns {*} Last element in array, `null` if array is empty.
+ */
+function lastOf(array) {
+  if (array.length === 0) {
+    return null;
+  }
+
+  return array[array.length - 1];
+}
+
 module.exports = {
   compute,
+  fixAndCompute,
 };
