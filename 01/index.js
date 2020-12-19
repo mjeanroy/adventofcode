@@ -14,7 +14,7 @@ function computePair(file) {
         reject('Cannot find result');
         return;
       }
-      
+
       resolve(pair[0] * pair[1]);
     });
   })
