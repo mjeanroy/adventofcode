@@ -22,27 +22,42 @@
  * THE SOFTWARE.
  */
 
-const path = require('path');
-const {computeRule1, computeRule2} = require('./index');
+const fs = require('fs');
 
-describe('day02', () => {
-  it('should compute number of valid passwords given sample according to rule 1', async () => {
-    const result = await computeRule1(path.join(__dirname, 'sample.txt'));
-    expect(result).toBe(2);
-  });
+/**
+ * Read file and returns a promise, resolved with file content or rejected
+ * with appropriate error.
+ *
+ * @param {string} file The file to read.
+ * @return {Promise<string>} The promise, resolved with file content.
+ */
+function readFile(file) {
+  return new Promise((resolve, reject) => {
+    fs.readFile(file, 'utf-8', (err, data) => {
+      if (err) {
+        reject(err);
+        return;
+      }
 
-  it('should compute number of valid passwords given input according to rule 1', async () => {
-    const result = await computeRule1(path.join(__dirname, 'input.txt'));
-    expect(result).toBe(591);
+      resolve(data);
+    });
   });
+}
 
-  it('should compute number of valid passwords given sample according to rule 2', async () => {
-    const result = await computeRule2(path.join(__dirname, 'sample.txt'));
-    expect(result).toBe(1);
-  });
+/**
+ * Read file and returns a promise, resolved with an array of all the lines
+ * in the given file.
+ *
+ * @param {string} file The file to read.
+ * @return {Promise<string>} The promise, resolved with file content.
+ */
+function readLines(file) {
+  return readFile(file).then((data) => (
+    data.split('\n')
+  ));
+}
 
-  it('should compute number of valid passwords given input according to rule 2', async () => {
-    const result = await computeRule2(path.join(__dirname, 'input.txt'));
-    expect(result).toBe(335);
-  });
-});
+module.exports = {
+  readFile,
+  readLines,
+};

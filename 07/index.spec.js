@@ -1,59 +1,53 @@
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2020 Mickael Jeanroy
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
 const path = require('path');
 const {compute1, compute2} = require('./index');
 
 describe('day07', () => {
-  it('should compute from sample', (done) => {
-    compute1(path.join(__dirname, 'sample.txt'))
-      .then((result) => {
-        expect(result).toBe(4);
-        done();
-      })
-      .catch((err) => {
-        done(err);
-      });
+  it('should compute from sample', async () => {
+    const result = await compute1(path.join(__dirname, 'sample.txt'));
+    expect(result).toBe(4);
   });
 
-  it('should compute from input', (done) => {
-    compute1(path.join(__dirname, 'input.txt'))
-      .then((result) => {
-        expect(result).toBe(278);
-        done();
-      })
-      .catch((err) => {
-        done(err);
-      });
+  it('should compute from input', async () => {
+    const result = await compute1(path.join(__dirname, 'input.txt'));
+    expect(result).toBe(278);
   });
 
-  it('should compute sum from sample', (done) => {
-    compute2(path.join(__dirname, 'sample.txt'))
-      .then((result) => {
-        expect(result).toBe(32);
-        done();
-      })
-      .catch((err) => {
-        done(err);
-      });
+  it('should compute sum from sample', async () => {
+    const result = await compute2(path.join(__dirname, 'sample.txt'));
+    expect(result).toBe(32);
   });
 
-  it('should compute sum from sample 2', (done) => {
-    compute2(path.join(__dirname, 'sample2.txt'))
-      .then((result) => {
-        expect(result).toBe(126);
-        done();
-      })
-      .catch((err) => {
-        done(err);
-      });
+  it('should compute sum from sample 2', async () => {
+    const result = await compute2(path.join(__dirname, 'sample2.txt'));
+    expect(result).toBe(126);
   });
 
-  it('should compute sum from input', (done) => {
-    compute2(path.join(__dirname, 'input.txt'))
-      .then((result) => {
-        expect(result).toBe(45157);
-        done();
-      })
-      .catch((err) => {
-        done(err);
-      });
+  it('should compute sum from input', async () => {
+    const result = await compute2(path.join(__dirname, 'input.txt'));
+    expect(result).toBe(45157);
   });
 });

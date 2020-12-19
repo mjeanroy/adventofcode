@@ -1,54 +1,79 @@
-const fs = require('fs');
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2020 Mickael Jeanroy
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 
+const {readLines} = require('../00/index');
+
+/**
+ * Compute the product of the two pair matching `2020`.
+ *
+ * @param {string} file The file path.
+ * @returns {Promise<Number>} A promise resolved with the product of the two pairs.
+ */
 function computePair(file) {
-  return new Promise((resolve, reject) => {
-    fs.readFile(file, 'utf8', (err, data) => {
-      if (err) {
-        reject(err);
-        return;
-      }
+  return readLines(file).then((lines) => {
+    const pair = findPairs(lines, 2020);
+    if (!pair) {
+      throw new Error('Cannot find pair matching 2020');
+    }
 
-      const lines = data.split(/\r?\n/);
-      const pair = findPairs(lines, 2020);
-      if (!pair) {
-        reject('Cannot find result');
-        return;
-      }
-
-      resolve(pair[0] * pair[1]);
-    });
-  })
+    return pair[0] * pair[1];
+  });
 }
 
+/**
+ * Compute the product of the three values where the sum of these values
+ * is equal to `2020`.
+ *
+ * @param {string} file The file path.
+ * @returns {Promise<Number>} A promise resolved with the product of these three values.
+ */
 function computeTriplet(file) {
-  return new Promise((resolve, reject) => {
-    fs.readFile(file, 'utf8', (err, data) => {
-      if (err) {
-        reject(err);
-        return;
+  return readLines(file).then((lines) => {
+    for (let i = 0; i < lines.length; ++i) {
+      const value = lines[i].trim();
+      const target = 2020 - value;
+      const pair = findPairs(lines, target);
+      if (pair) {
+        return value * pair[0] * pair[1];
       }
-  
-      const lines = data.split(/\r?\n/);
-  
-      for (let i = 0; i < lines.length; ++i) {
-        const value = lines[i].trim();
-        const target = 2020 - value;
+    }
 
-        // Now we can find pair for this target value.
-        const pair = findPairs(lines, target);
-        if (pair) {
-          resolve(value * pair[0] * pair[1]);
-          return;
-        }
-      }
-
-      reject('Cannot find result');
-    });
-  })
+    throw new Error('Cannot find result');
+  });
 }
 
+/**
+ * Find pair of number where the sum of these two numbers is equal to a
+ * given target value.
+ *
+ * @param {Array<string>} inputs Given input of numbers.
+ * @param {Number} target The target to look for.
+ * @return {Array<Number>|null} An array containing pairs, or `null` if no pair can be found.
+ */
 function findPairs(inputs, target) {
   const set = new Set();
+
   for (let i = 0; i < inputs.length; ++i) {
     const value = inputs[i].trim();
     const nb = Number(value);
@@ -67,4 +92,4 @@ module.exports = {
   computePair,
   computeTriplet,
 };
-  
+

@@ -1,0 +1,30 @@
+{
+  "extends": [
+    "eslint:recommended",
+    "google"
+  ],
+  "parserOptions": {
+    "ecmaVersion": 2017
+  },
+  "env": {
+    "es6": true,
+    "node": true,
+    "jest": true
+  },
+  "rules": {
+    "max-len": [2, 140, 2],
+    "valid-jsdoc": [2, {
+      "requireReturn": true,
+      "requireParamDescription": true,
+      "requireReturnDescription": true,
+      "prefer": {
+        "return": "return",
+        "arg": "param",
+        "argument": "param"
+      },
+      "preferType": {
+        "object": "object"
+      }
+    }]
+  }
+}
