@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-const {readLines} = require('../00/index');
+const {readLines, toNumber} = require('../00/index');
 
 /**
  * Compute the value of the accumulator after last operation before finding the loop in
@@ -161,22 +161,10 @@ function scanOperation(lines) {
     const parts = line.split(' ');
     return {
       id: parts[0].trim(),
-      value: toInt(parts[1].trim()),
+      value: toNumber(parts[1]),
       counter: 0,
     };
   });
-}
-
-/**
- * Parse given input to a number.
- *
- * @param {string} value The input.
- * @returns {number} The number.
- */
-function toInt(value) {
-  const sign = value.charAt(0);
-  const nb = Number(value.slice(1));
-  return sign === '-' ? nb * -1 : nb;
 }
 
 /**

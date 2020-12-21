@@ -4,10 +4,10 @@
     "google"
   ],
   "parserOptions": {
-    "ecmaVersion": 2017
+    "ecmaVersion": 2020
   },
   "env": {
-    "es6": true,
+    "es2020": true,
     "node": true,
     "jest": true
   },

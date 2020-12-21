@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-const {readLines} = require('../00/index');
+const {readLines, toNumber} = require('../00/index');
 
 /**
  * Find the first number in given input that is not the sum of two numbers in the last `preamble` visited inputs.
@@ -154,16 +154,6 @@ function computeMinMaxSum(sequence) {
   }
 
   return min + max;
-}
-
-/**
- * Turn given string to the corresponding number value.
- *
- * @param {string} value The value as string.
- * @returns {number} The value as a number.
- */
-function toNumber(value) {
-  return Number(value.trim());
 }
 
 /**

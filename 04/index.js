@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-const {readLines} = require('../00/index');
+const {readLines, toNumber} = require('../00/index');
 
 /**
  * Count the number of valid passports in given input file.
@@ -173,7 +173,7 @@ function validateYear(value, lowerBound, upperBound) {
  * @returns {boolean} `true` if value is a valid year, `false` otherwise.
  */
 function validateNumber(value, lowerBound, upperBound) {
-  const nb = Number(value);
+  const nb = toNumber(value);
   return !!nb && nb >= lowerBound && nb <= upperBound;
 }
 

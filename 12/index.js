@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-const {readLines} = require('../00/index');
+const {readLines, toNumber} = require('../00/index');
 
 const NORTH = 'N';
 const SOUTH = 'S';
@@ -225,7 +225,7 @@ function computeNextPosition(currentDirection, currentPosition, units) {
  */
 function parseInstruction(instruction) {
   const action = instruction[0];
-  const units = Number(instruction.slice(1));
+  const units = toNumber(instruction.slice(1));
   return {
     action,
     units,

@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-const {readLines} = require('../00/index');
+const {readLines, toNumber} = require('../00/index');
 
 /**
  * Compute the number of valid password according to the validation function described
@@ -94,8 +94,8 @@ function compute(file, validator) {
  */
 function parseBoundaries(boundaries) {
   const boundariesParts = boundaries.split('-', 2);
-  const min = Number(boundariesParts[0]);
-  const max = Number(boundariesParts[1]);
+  const min = toNumber(boundariesParts[0]);
+  const max = toNumber(boundariesParts[1]);
   return {
     min,
     max,

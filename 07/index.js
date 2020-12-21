@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-const {readLines} = require('../00/index');
+const {readLines, toNumber} = require('../00/index');
 
 /**
  * Count, from given rules, the number of bag that eventually contains at least one
@@ -270,7 +270,7 @@ function parseQuantifier(input) {
   const matchings = reg.exec(input);
   return {
     id: matchings[2],
-    value: Number(matchings[1]),
+    value: toNumber(matchings[1]),
   };
 }
 

@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-const {readLines} = require('../00/index');
+const {readLines, toNumber} = require('../00/index');
 
 /**
  * Compute the number of 1-jolt differences multiplied by the number of 3-jolt differences provided
@@ -178,16 +178,6 @@ function toSet(lines) {
   }
 
   return set;
-}
-
-/**
- * Translate given string number to a real number.
- *
- * @param {string} value String value.
- * @returns {number} The corresponding number value.
- */
-function toNumber(value) {
-  return Number(value.trim());
 }
 
 module.exports = {

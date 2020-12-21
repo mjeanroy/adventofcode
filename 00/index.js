@@ -57,7 +57,18 @@ function readLines(file) {
   ));
 }
 
+/**
+ * Convert given string value to the corresponding number.
+ *
+ * @param {string} value The value.
+ * @returns {number} The corresponding number.
+ */
+function toNumber(value) {
+  return Number(value.trim());
+}
+
 module.exports = {
   readFile,
   readLines,
+  toNumber,
 };

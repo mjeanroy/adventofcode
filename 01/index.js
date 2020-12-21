@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-const {readLines} = require('../00/index');
+const {readLines, toNumber} = require('../00/index');
 
 /**
  * Compute the product of the two pair matching `2020`.
@@ -76,7 +76,7 @@ function findPairs(inputs, target) {
 
   for (let i = 0; i < inputs.length; ++i) {
     const value = inputs[i].trim();
-    const nb = Number(value);
+    const nb = toNumber(value);
     const lookingFor = target - nb;
     if (set.has(lookingFor)) {
       return [nb, lookingFor];
