@@ -23,26 +23,16 @@
  */
 
 const path = require('path');
-const {computePart1} = require('./index');
+const {computePart2} = require('./index');
 
 describe('day14', () => {
-  it('should compute from sample using bit manipulation', async () => {
-    const result = await computePart1(path.join(__dirname, 'sample.txt'), true);
-    expect(result).toBe(165n);
+  it('should compute part 2 from sample', async () => {
+    const result = await computePart2(path.join(__dirname, 'sample_part2.txt'));
+    expect(result).toBe(208n);
   });
 
-  it('should compute from sample using simple loop', async () => {
-    const result = await computePart1(path.join(__dirname, 'sample.txt'), false);
-    expect(result).toBe(165n);
-  });
-
-  it('should compute from input using bit manipulation', async () => {
-    const result = await computePart1(path.join(__dirname, 'input.txt'), true);
-    expect(result).toBe(10885823581193n);
-  });
-
-  it('should compute from input using loop', async () => {
-    const result = await computePart1(path.join(__dirname, 'input.txt'), false);
-    expect(result).toBe(10885823581193n);
+  it('should compute part 2 from input', async () => {
+    const result = await computePart2(path.join(__dirname, 'input.txt'));
+    expect(result).toBe(3816594901962n);
   });
 });

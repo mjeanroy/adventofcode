@@ -30,9 +30,9 @@ const {readLines, toNumber} = require('../00/index');
  *
  * @param {string} file The file path.
  * @param {boolean} useBitManipulation Use bit manipulation to apply mask, set to `false` to use "good old" loop.
- * @returns {Promise<number>} A promise resolved with given sum.
+ * @returns {Promise<BigInt>} A promise resolved with given sum.
  */
-function compute(file, useBitManipulation = true) {
+function computePart1(file, useBitManipulation = true) {
   return readLines(file).then((lines) => {
     const memory = new Map();
     const applyFn = useBitManipulation ? applyMaskUsingBitManipulation : applyMaskUsingLoop;
@@ -50,27 +50,71 @@ function compute(file, useBitManipulation = true) {
       }
     }
 
-    // Then compute the sum
-    let sum = 0n;
-    for (const entry of memory.entries()) {
-      sum += entry[1];
+    return doSum(memory);
+  });
+}
+
+/**
+ * Compute the sum of all values left in memory after running
+ * the given input instruction.
+ *
+ * @param {string} file The file path.
+ * @returns {Promise<BigInt>} A promise resolved with given sum.
+ */
+function computePart2(file) {
+  return readLines(file).then((lines) => {
+    const memory = new Map();
+
+    let mask = null;
+
+    for (let i = 0; i < lines.length; ++i) {
+      const line = lines[i];
+      if (!line) {
+        continue;
+      }
+
+      if (line.startsWith('mask')) {
+        mask = readMask(line);
+      } else {
+        const instruction = readMem(line);
+        const mem = instruction.position;
+        const value = instruction.value;
+        const addresses = computeMemoryAddresses(mem, mask);
+        for (let i = 0; i < addresses.length; ++i) {
+          memory.set(Number(addresses[i]), value);
+        }
+      }
     }
 
-    return sum;
+    return doSum(memory);
   });
+}
+
+/**
+ * Compute the sum of all values in memory (i.e in map).
+ *
+ * @param {Map<number, number>} memory The memory.
+ * @returns {BigInt} The sum of all values in memory.
+ */
+function doSum(memory) {
+  let sum = 0n;
+  for (const entry of memory.entries()) {
+    sum += entry[1];
+  }
+
+  return sum;
 }
 
 /**
  * Apply given mask to given number using bit manipulation.
  *
- * @param {number} nb The number to update.
+ * @param {BigInt} nb The number to update.
  * @param {string} mask Mask to apply.
  * @returns {BigInt} The number after given mask has been applied.
  */
 function applyMaskUsingBitManipulation(nb, mask) {
-  nb |= BigInt(parseInt(mask.replace(/X/g, '0'), 2));
-  nb &= BigInt(parseInt(mask.replace(/X/g, '1'), 2));
-  return nb;
+  const r1 = nb | BigInt(parseInt(mask.replace(/X/g, '0'), 2));
+  return r1 & BigInt(parseInt(mask.replace(/X/g, '1'), 2));
 }
 
 /**
@@ -78,7 +122,7 @@ function applyMaskUsingBitManipulation(nb, mask) {
  *
  * @param {number} nb Given input number.
  * @param {string} mask The mask to apply.
- * @returns {number} The number after given mask has been applied.
+ * @returns {BigInt} The number after given mask has been applied.
  */
 function applyMaskUsingLoop(nb, mask) {
   const binary = toBinary(nb);
@@ -107,6 +151,66 @@ function applyMaskUsingLoop(nb, mask) {
 
   return BigInt(parseInt(output, 2));
 }
+/**
+ * Compute all memory adresses after applying given mask.
+ *
+ * @param {number} mem The initial memory adress.
+ * @param {string} mask The mask to apply.
+ * @returns {Array<number>} All the memory adresses computed after applying given mask.
+ */
+function computeMemoryAddresses(mem, mask) {
+  const maskCombinatorial = computeAllMask(mask);
+  const memoryAddresses = [];
+  for (let i = 0; i < maskCombinatorial.length; ++i) {
+    memoryAddresses.push(applyMaskUsingBitManipulation(BigInt(mem), maskCombinatorial[i]));
+  }
+
+  return memoryAddresses;
+}
+
+/**
+ * Compute the combinatory of all mask, starting with given mask.
+ *
+ * @param {string} mask The mask.
+ * @param {number} position The current position in given mask.
+ * @return {Array<string>} All resulting mask.
+ */
+function computeAllMask(mask, position = 0) {
+  if (mask.length === 1) {
+    if (mask === '0') {
+      return ['X'];
+    }
+
+    if (mask === '1') {
+      return ['1'];
+    }
+
+    if (mask === 'X') {
+      return ['0', '1'];
+    }
+
+    throw new Error('Unknow character in mask: ' + mask);
+  }
+
+  const suffixes = computeAllMask(mask.slice(position + 1));
+  const c = mask[0];
+  if (c === '0') {
+    return suffixes.map((suffix) => 'X' + suffix);
+  }
+
+  if (c === '1') {
+    return suffixes.map((suffix) => '1' + suffix);
+  }
+
+  if (c === 'X') {
+    return [
+      ...suffixes.map((suffix) => '0' + suffix),
+      ...suffixes.map((suffix) => '1' + suffix),
+    ];
+  }
+
+  throw new Error('Unknow character in mask: ' + c);
+}
 
 /**
  * Translate number to a binary string.
@@ -118,8 +222,6 @@ function toBinary(nb) {
   return nb.toString(2);
 }
 
-// '0000000000000000000000000000010000001001'
-//      000000000000000000000000000001001001
 /**
  * Parse given input describing memory allocation.
  *
@@ -137,7 +239,7 @@ function toBinary(nb) {
  * @return {Object} The parsed input.
  */
 function readMem(line) {
-  const regexp = new RegExp('mem\\[(\\d+)\\] = (\\d+)');
+  const regexp = new RegExp('mem\\[(\\d+)] = (\\d+)');
   const match = regexp.exec(line.trim());
   if (!match) {
     throw new Error('Cannot read line: ' + line);
@@ -165,5 +267,6 @@ function readMask(line) {
 }
 
 module.exports = {
-  compute,
+  computePart1,
+  computePart2,
 };
