@@ -25,12 +25,13 @@
 const {readLines, toNumber} = require('../00/index');
 
 /**
- * Compute the 2020th spoken number, using the input as starting sequence.
+ * Compute the nth spoken number, using the input as starting sequence.
  *
  * @param {string} file File path.
+ * @param {number} nth The nth spoken number.
  * @returns {Promise<number>} A promise resolved with the 2020th spoken number.
  */
-function compute(file) {
+function compute(file, nth = 2020) {
   return readLines(file).then((lines) => {
     const map = new Map();
 
@@ -43,7 +44,7 @@ function compute(file) {
       addToMap(lastSpokenNumber, i, map);
     }
 
-    for (; i <= 2020; ++i) {
+    for (; i <= nth; ++i) {
       const occurences = getOrDefault(map, lastSpokenNumber, []);
       if (occurences.length <= 1) {
         lastSpokenNumber = 0;
