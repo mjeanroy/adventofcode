@@ -23,7 +23,7 @@
  */
 
 const path = require('path');
-const {computeErrorRate} = require('./index');
+const {computeErrorRate, computeProduct} = require('./index');
 
 describe('day15 - part1', () => {
   it('should compute error rate from sample', async () => {
@@ -32,5 +32,13 @@ describe('day15 - part1', () => {
 
   it('should compute error rate from input', async () => {
     expect(await computeErrorRate(path.join(__dirname, 'input.txt'))).toBe(29878);
+  });
+
+  it('should compute product of class fields from sample', async () => {
+    expect(await computeProduct(path.join(__dirname, 'sample_part2.txt'), 'class')).toBe(12);
+  });
+
+  it('should compute product of departure fields from input', async () => {
+    expect(await computeProduct(path.join(__dirname, 'input.txt'), 'departure')).toBe(855438643439);
   });
 });

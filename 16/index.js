@@ -39,6 +39,57 @@ function computeErrorRate(file) {
 }
 
 /**
+ * Compute error rate on given input.
+ *
+ * @param {string} file File path.
+ * @param {string} prefix Rule id prefix to look for.
+ * @returns {Promise} The error rate on given input.
+ */
+function computeProduct(file, prefix = 'departure') {
+  return readFile(file).then((data) => {
+    const parts = data.split('\n\n');
+    const rules = parseRules(parts[0]);
+    const tickets = findValidTickets(parts[2], rules);
+    const validRules = identifyRules(tickets, rules);
+    const myTicket = parts[1].split('\n')[1];
+    return computeTicketProduct(myTicket, validRules, prefix);
+  });
+}
+
+/**
+ * Compute the product of all fields in given ticket corresponding to given rules to consider.
+ *
+ * @param {string} rawTicket The ticket as a raw string.
+ * @param {Array<string>} rules All the rules in order.
+ * @param {string} prefix The prefix of rules to consider.
+ * @returns {number} The product of all fields corresponding to given rules to consider.
+ */
+function computeTicketProduct(rawTicket, rules, prefix) {
+  const ticket = parseTicket(rawTicket);
+
+  let product = 1;
+
+  for (let i = 0; i < rules.length; ++i) {
+    const id = rules[i];
+    if (id.startsWith(prefix)) {
+      product *= ticket[i];
+    }
+  }
+
+  return product;
+}
+
+/**
+ * Parse given ticket.
+ *
+ * @param {string} rawTicket Ticket as a raw string.
+ * @returns {Array<number>} Parsed ticket.
+ */
+function parseTicket(rawTicket) {
+  return rawTicket.trim().split(',').map((field) => toNumber(field));
+}
+
+/**
  * Compute the error rate, i.e the sum of all invalid fields in all tickets
  * according to given rules.
  *
@@ -63,6 +114,117 @@ function computeTicketSumOfInvalidFields(ticket, rules) {
 }
 
 /**
+ * Extract all valid tickets from given input.
+ *
+ * @param {string} inputs The raw tickets.
+ * @param {Array<Object>} rules The rules.
+ * @returns {Array<string>} All the valid tickets.
+ */
+function findValidTickets(inputs, rules) {
+  return inputs.trim().split('\n').slice(1).filter((ticket) => (
+    isValidTicket(ticket, rules)
+  ));
+}
+
+/**
+ * Check that given ticket is valid according to given rules.
+ *
+ * @param {string} ticket The ticket.
+ * @param {Array<Object>} rules The rules.
+ * @returns {boolean} `true` if ticket is valid, `false` otherwise.
+ */
+function isValidTicket(ticket, rules) {
+  const fields = ticket.split(',');
+  for (let i = 0; i < fields.length; ++i) {
+    if (!isValidField(toNumber(fields[i]), rules)) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+/**
+ * Compute the error rate, i.e the sum of all invalid fields in all tickets
+ * according to given rules.
+ *
+ * @param {Array<string>} tickets All the tickets.
+ * @param {Array<Object>} rules All the rules.
+ * @returns {number} The sum of all invalid fields in given tickets.
+ */
+function identifyRules(tickets, rules) {
+  // First, build an array with all possible solutions
+  const allPossible = [];
+  const ruleIds = rules.map((rule) => rule.id);
+  for (let i = 0; i < tickets[0].split(',').length; ++i) {
+    allPossible[i] = new Set(ruleIds);
+  }
+
+  // Then, iterate over all tickets, and starts to eliminate solutions.
+  for (let i = 0; i < tickets.length; ++i) {
+    const ticket = tickets[i];
+    const fields = ticket.split(',');
+    for (let j = 0; j < fields.length; ++j) {
+      const field = toNumber(fields[j]);
+      for (let k = 0; k < rules.length; ++k) {
+        const rule = rules[k];
+        if (!isValidFieldForRule(field, rule)) {
+          allPossible[j].delete(rule.id);
+        }
+      }
+    }
+  }
+
+  // Finally, start to iterate to remove duplicated solutions until we have found everything.
+  // We should not stop until it becomes stable...
+  // Can we do better?
+
+  const results = allPossible.map(() => null);
+  let nbFound = 0;
+
+  while (nbFound !== allPossible.length) {
+    // Keep in mind what we find in this iteration, we'll use it after to remove
+    // duplications.
+    const newFound = new Map();
+
+    for (let i = 0; i < allPossible.length; ++i) {
+      if (results[i] !== null) {
+        // We already found this one, skip it.
+        continue;
+      }
+
+      // Check if we have found something new.
+      const possibilities = allPossible[i];
+      if (possibilities.size === 1) {
+        const value = possibilities.values().next().value;
+        results[i] = value;
+        nbFound++;
+
+        // Remember what we found.
+        newFound.set(i, value);
+      }
+    }
+
+    // If we don't find anything, then it means we won't be able to find the right solution,
+    // we are in an ended loop.
+    if (newFound.size === 0) {
+      throw new Error('It looks like we cannot find the right combination, the loop will never stopped...');
+    }
+
+    // Remove duplications from what we just found.
+    for (const entry of newFound.entries()) {
+      for (let i = 0; i < allPossible.length; ++i) {
+        if (i !== entry[0]) {
+          allPossible[i].delete(entry[1]);
+        }
+      }
+    }
+  }
+
+  return results;
+}
+
+/**
  * Compute field error rate.
  *
  * @param {string} field The field.
@@ -71,20 +233,31 @@ function computeTicketSumOfInvalidFields(ticket, rules) {
  */
 function computeFieldErrorRate(field, rules) {
   const value = toNumber(field);
-  return isValid(value, rules) ? 0 : value;
+  return isValidField(value, rules) ? 0 : value;
 }
 
 /**
  * Check that given field is valid for, at least, one rule.
  *
  * @param {number} field The field to check.
- * @param {Object} rules The rules.
+ * @param {Array<Object>} rules The rules.
  * @returns {boolean} `true` if field is valid for, at least, one rule, `false` otherwise.
  */
-function isValid(field, rules) {
+function isValidField(field, rules) {
   return rules.some((rule) => (
-    (field >= rule.range1[0] && field <= rule.range1[1]) || (field >= rule.range2[0] && field <= rule.range2[1])
+    isValidFieldForRule(field, rule)
   ));
+}
+
+/**
+ * Check that given field is valid for this rule.
+ *
+ * @param {number} field The field to check.
+ * @param {Object} rule The rule.
+ * @returns {boolean} `true` if field is valid for this rule, `false` otherwise.
+ */
+function isValidFieldForRule(field, rule) {
+  return (field >= rule.range1[0] && field <= rule.range1[1]) || (field >= rule.range2[0] && field <= rule.range2[1]);
 }
 
 /**
@@ -159,4 +332,5 @@ function parseRule(rule) {
 
 module.exports = {
   computeErrorRate,
+  computeProduct,
 };
