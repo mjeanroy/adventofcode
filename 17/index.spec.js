@@ -23,14 +23,22 @@
  */
 
 const path = require('path');
-const {compute} = require('./index');
+const {compute3D, compute4D} = require('./index');
 
 describe('day17', () => {
-  it('should compute from sample', async () => {
-    expect(await compute(path.join(__dirname, 'sample.txt'))).toBe(112);
+  it('should compute active cubes in 3D grid from sample', async () => {
+    expect(await compute3D(path.join(__dirname, 'sample.txt'))).toBe(112);
   });
 
-  it('should compute from input', async () => {
-    expect(await compute(path.join(__dirname, 'input.txt'))).toBe(384);
+  it('should compute active cubes in 3D grid from input', async () => {
+    expect(await compute3D(path.join(__dirname, 'input.txt'))).toBe(384);
+  });
+
+  it('should compute active cubes in 4D grid from sample', async () => {
+    expect(await compute4D(path.join(__dirname, 'sample.txt'))).toBe(848);
+  });
+
+  it('should compute active cubes in 4D grid from input', async () => {
+    expect(await compute4D(path.join(__dirname, 'input.txt'))).toBe(2012);
   });
 });
