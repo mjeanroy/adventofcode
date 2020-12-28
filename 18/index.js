@@ -32,8 +32,19 @@ const CLOSED_PARENTHESIS = ')';
 const ADDITION = '+';
 const MULTIPLICATION = '*';
 const OPERATIONS = {
-  [ADDITION]: (x, y) => Number(x) + Number(y),
-  [MULTIPLICATION]: (x, y) => Number(x) * Number(y),
+  [ADDITION]: {
+    precedence: 2,
+    evaluate(x, y) {
+      return Number(x) + Number(y);
+    },
+  },
+
+  [MULTIPLICATION]: {
+    precedence: 1,
+    evaluate(x, y) {
+      return Number(x) * Number(y);
+    },
+  },
 };
 
 /**
@@ -60,71 +71,98 @@ function compute(file) {
  * @returns {number} The resulting value.
  */
 function computeExpression(expr) {
-  let values = [];
-  let op = null;
+  const stack = [];
 
-  let nbParenthesis = 0;
-  let pending = '';
+  let token = '';
 
   for (let i = 0; i < expr.length; ++i) {
     const c = expr[i];
-    // Skip sub-expression parsed recursively.
-    if (nbParenthesis > 0) {
-      if (c === CLOSED_PARENTHESIS) {
-        nbParenthesis--;
-      } else if (c === OPEN_PARENTHESIS) {
-        nbParenthesis++;
-      }
+    if (c === ' ') {
+      addToStack(stack, token);
+      token = '';
     }
 
-    // Otherwise, continue parsing
-    else if (nbParenthesis === 0) {
-      // We found a new "word"
-      if (c === ' ') {
-        // We found a number or the operator.
-        if (pending === ADDITION || pending === MULTIPLICATION) {
-          op = pending;
-        } else if (pending) {
-          values.push(Number(pending));
-        }
+    else if (c === OPEN_PARENTHESIS) {
+      addToStack(stack, token);
+      addToStack(stack, c);
+      token = '';
+    }
 
-        // If we find two values, we can compute it and use the result as the first operand.
-        if (values.length === 2) {
-          values = [OPERATIONS[op](values[0], values[1])];
-        }
+    else if (c === CLOSED_PARENTHESIS) {
+      addToStack(stack, token);
+      computeOnTopStack(stack);
+      token = '';
+    }
 
-        pending = '';
-      }
-
-      // Beginning of a sub-expression, parse it recursively.
-      else if (c === OPEN_PARENTHESIS) {
-        nbParenthesis++;
-        values.push(computeExpression(expr.slice(i + 1)));
-      }
-
-      // End of the current sub-expression, stop it.
-      else if (c === CLOSED_PARENTHESIS) {
-        nbParenthesis--;
-        break;
-      }
-
-      else {
-        pending += c;
-      }
+    else {
+      token += c;
     }
   }
 
-  if (pending) {
-    values.push(Number(pending));
+  addToStack(stack, token);
+
+  return computeOnFrontOfStack(stack);
+}
+
+/**
+ * Add value to the stack if it is defined.
+ *
+ * @param {Array<string|number>} stack The stack.
+ * @param {string} token The token to add.
+ * @returns {void}
+ */
+function addToStack(stack, token) {
+  if (token) {
+    stack.push(token);
+  }
+}
+
+/**
+ * Compute the top of the stack, until the stack is empty or until we find an open parenthesis.
+ *
+ * @param {Array<string>} stack The stack.
+ * @returns {void}
+ */
+function computeOnTopStack(stack) {
+  const queue = [];
+
+  while (stack.length > 0) {
+    const v = stack.pop();
+
+    if (v === OPEN_PARENTHESIS) {
+      break;
+    }
+
+    else {
+      queue.unshift(v);
+    }
   }
 
-  if (values.length === 2) {
-    values = [
-      OPERATIONS[op](values[0], values[1]),
-    ];
+  stack.push(
+      computeOnFrontOfStack(queue),
+  );
+}
+
+/**
+ * Reduce stack by computing all values one by one from left to right.
+ *
+ * @param {Array<string|number>} stack The stack.
+ * @returns {number} The last resulting value.
+ */
+function computeOnFrontOfStack(stack) {
+  while (stack.length > 1) {
+    const v1 = stack.shift();
+    const op = stack.shift();
+    const v2 = stack.shift();
+
+    const operator = OPERATIONS[op];
+    const result = operator.evaluate(v1, v2);
+
+    stack.unshift(result);
   }
 
-  return values[0];
+  // The last stored value is the final result.
+  return Number(stack[0]);
 }
 
 module.exports = {

@@ -35,6 +35,7 @@ describe('day18', () => {
   });
 
   it('should compute expression', () => {
+    expect(computeExpression('1 + 2 * 3 + 4 * 5 + 6')).toBe(71);
     expect(computeExpression('2 * 3 + (4 * 5)')).toBe(26);
     expect(computeExpression('5 + (8 * 3 + 9 + 3 * 4 * 3)')).toBe(437);
     expect(computeExpression('5 * 9 * (7 * 3 * 3 + 9 * 3 + (8 + 6 * 4))')).toBe(12240);
