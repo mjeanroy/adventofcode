@@ -23,15 +23,15 @@
  */
 
 const path = require('path');
-const {compute, computeExpression} = require('./index');
+const {part1, part2, computeExpression, computeExpressionWithPrecedence} = require('./index');
 
 describe('day18', () => {
   it('should compute value from expression', async () => {
-    expect(await compute(path.join(__dirname, 'expr.txt'))).toBe(71);
+    expect(await part1(path.join(__dirname, 'expr.txt'))).toBe(71);
   });
 
   it('should compute value from expression with parenthesis', async () => {
-    expect(await compute(path.join(__dirname, 'expr_parenthesis.txt'))).toBe(51);
+    expect(await part1(path.join(__dirname, 'expr_parenthesis.txt'))).toBe(51);
   });
 
   it('should compute expression', () => {
@@ -43,6 +43,19 @@ describe('day18', () => {
   });
 
   it('should compute value from input', async () => {
-    expect(await compute(path.join(__dirname, 'input.txt'))).toBe(4940631886147);
+    expect(await part1(path.join(__dirname, 'input.txt'))).toBe(4940631886147);
+  });
+
+  it('should compute expression using precedence', () => {
+    expect(computeExpressionWithPrecedence('1 + 2 * 3 + 4 * 5 + 6')).toEqual(231);
+    expect(computeExpressionWithPrecedence('1 + (2 * 3) + (4 * (5 + 6))')).toEqual(51);
+    expect(computeExpressionWithPrecedence('2 * 3 + (4 * 5)')).toEqual(46);
+    expect(computeExpressionWithPrecedence('5 + (8 * 3 + 9 + 3 * 4 * 3)')).toEqual(1445);
+    expect(computeExpressionWithPrecedence('5 * 9 * (7 * 3 * 3 + 9 * 3 + (8 + 6 * 4))')).toEqual(669060);
+    expect(computeExpressionWithPrecedence('((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2')).toEqual(23340);
+  });
+
+  it('should compute value with precedence from input', async () => {
+    expect(await part2(path.join(__dirname, 'input.txt'))).toBe(283582817678281);
   });
 });
