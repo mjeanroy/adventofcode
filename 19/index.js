@@ -22,6 +22,8 @@
  * THE SOFTWARE.
  */
 
+/* eslint-disable brace-style */
+
 const {readFile} = require('../00/index');
 
 /**
@@ -31,14 +33,77 @@ const {readFile} = require('../00/index');
  * @param {string} file File path.
  * @returns {Promise<number>} A promise resolved with the number of invalid messages.
  */
-function compute(file) {
+function part1(file) {
+  return run(file, false);
+}
+
+/**
+ * Parse file and compute the number of invalid messages according
+ * to given rules descibed in the first part of the file.
+ *
+ * @param {string} file File path.
+ * @returns {Promise<number>} A promise resolved with the number of invalid messages.
+ */
+function part2(file) {
+  return run(file, true);
+}
+
+/**
+ * Parse file and compute the number of invalid messages according
+ * to given rules descibed in the first part of the file.
+ *
+ * If second parameter is equal to `true`, then rules 8 and 11 are updated
+ * with the following semantic;
+ *   `8: 42 | 42 8`
+ *   `11: 42 31 | 42 11 31`
+ *
+ * @param {string} file File path.
+ * @param {boolean} overrideRules Flag to override rules 8 and 11 such as described in puzzle.
+ * @returns {Promise<number>} A promise resolved with the number of invalid messages.
+ */
+function run(file, overrideRules) {
   return readFile(file).then((data) => {
     const parts = data.split('\n\n');
     const rules = parseRules(parts[0].trim().split('\n'));
-    const regexp = produceRegex(rules);
+
+    // A good way would have been to take care of this while creating the final regexp.
+    // But... I really don't know how to specify a recursive regexp, especially for the rule 11...
+    // The rule 8 is not so hard, since it is only a simple repetition.
+    // The rule 11 is hard since it is a symetric repetition between a left and right part.
+    if (overrideRules) {
+      rules.set('8', '42 | 42+');
+      rules.set('11', `42 31 | ${generateSymetricQuantifiers('42', '31', 10)}`);
+    }
+
+    const regexp = produceRegex(rules, overrideRules);
     const messages = parts[1].trim().split('\n');
     return messages.reduce((acc, message) => acc + (isValid(message, regexp) ? 1 : 0), 0);
   });
+}
+
+/**
+ * Generate patterns where a left and a right value are repeated in a symetric way.
+ *
+ * For example:
+ *
+ *  1: `LEFT RIGHT`
+ *  2: `LEFT LEFT RIGHT RIGHT`
+ *  3: `LEFT LEFT LEFT RIGHT RIGHT RIGHT`
+ *  ...
+ *
+ * @param {string} left The left part of the rule.
+ * @param {string} right The right part of the rule.
+ * @param {number} n The number of repetition.
+ * @returns {string} The regexp part.
+ */
+function generateSymetricQuantifiers(left, right, n) {
+  const outputs = [];
+
+  for (let i = 1; i <= n; ++i) {
+    outputs.push(`${left}{${i}} ${right}{${i}}`);
+  }
+
+  return outputs.join(' | ');
 }
 
 /**
@@ -92,9 +157,27 @@ function extractTerminalValue(id, rules, memo = new Map()) {
   }
 
   const parts = value.split('|');
-  const terminalValues = parts.map((part) => (
-    part.trim().split(' ').map((id) => extractTerminalValue(id, rules, memo)).join('')
-  ));
+  const terminalValues = parts.map((part) => {
+    const inputs = part.trim().split(' ');
+    const outputs = [];
+
+    for (let i = 0; i < inputs.length; ++i) {
+      const x = inputs[i].trim();
+
+      if (x !== id) {
+        const ref = parseRuleReference(x);
+
+        let rg = extractTerminalValue(ref.id, rules, memo);
+        if (ref.quantifier) {
+          rg += ref.quantifier;
+        }
+
+        outputs.push(rg);
+      }
+    }
+
+    return outputs.join('');
+  });
 
   const result = `(${terminalValues.join('|')})`;
 
@@ -102,6 +185,31 @@ function extractTerminalValue(id, rules, memo = new Map()) {
   memo.set(id, result);
 
   return result;
+}
+
+/**
+ * Parse a rule reference.
+ *
+ * For example:
+ *
+ * - `parseRuleReference('42')` => {id: '42', quantifier: null}
+ * - `parseRuleReference('42+')` => {id: '42', quantifier: '+'}
+ * - `parseRuleReference('42{1}')` => {id: '42', quantifier: '{1}'}
+ *
+ * @param {string} ruleId The rule ID.
+ * @returns {Object} The rule, with its ID and an optional quantifier.
+ */
+function parseRuleReference(ruleId) {
+  const rg = new RegExp('(\\d+)(.+)?');
+  const matchings = rg.exec(ruleId);
+  if (!matchings) {
+    throw new Error('Cannot parse rule id: ' + ruleId);
+  }
+
+  return {
+    id: matchings[1],
+    quantifier: matchings[2] || null,
+  };
 }
 
 /**
@@ -152,5 +260,6 @@ function parseRule(rule) {
 }
 
 module.exports = {
-  compute,
+  part1,
+  part2,
 };

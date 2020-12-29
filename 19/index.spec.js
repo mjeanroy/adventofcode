@@ -23,14 +23,26 @@
  */
 
 const path = require('path');
-const {compute} = require('./index');
+const {part1, part2} = require('./index');
 
 describe('day19', () => {
   it('should compute from sample', async () => {
-    expect(await compute(path.join(__dirname, 'sample.txt'))).toBe(2);
+    expect(await part1(path.join(__dirname, 'sample.txt'))).toBe(2);
   });
 
   it('should compute from input', async () => {
-    expect(await compute(path.join(__dirname, 'input.txt'))).toBe(102);
+    expect(await part1(path.join(__dirname, 'input.txt'))).toBe(102);
+  });
+
+  it('should compute part1 from sample2', async () => {
+    expect(await part1(path.join(__dirname, 'sample2.txt'))).toBe(3);
+  });
+
+  it('should compute part2 from sample2', async () => {
+    expect(await part2(path.join(__dirname, 'sample2.txt'))).toBe(12);
+  });
+
+  it('should compute part2 from input', async () => {
+    expect(await part2(path.join(__dirname, 'input.txt'))).toBe(318);
   });
 });
