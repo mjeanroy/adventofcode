@@ -59,13 +59,9 @@ function compute(file, validator) {
     let nbValid = 0;
 
     for (let i = 0; i < lines.length; ++i) {
-      if (!lines[i]) {
-        continue;
-      }
-
       const line = parseLine(lines[i]);
-      const rule = parseRule(line.rule);
-      const boundaries = parseBoundaries(rule.boundaries);
+      const rule = line.rule;
+      const boundaries = rule.boundaries;
       if (validator(line.pwd, rule.c, boundaries.min, boundaries.max)) {
         nbValid++;
       }
@@ -73,60 +69,6 @@ function compute(file, validator) {
 
     return nbValid;
   });
-}
-
-/**
- * Parse given rule boundaries and returns an object with:
- * - `min` The min boundary.
- * - `max` The max boundary.
- *
- * For example, this line `1-3` will returned:
- *
- * ```js
- * {
- *   min: 1,
- *   max: 3,
- * }
- * ```
- *
- * @param {string} boundaries The boundaries to parse.
- * @returns {Object} The parsed boundaries.
- */
-function parseBoundaries(boundaries) {
-  const boundariesParts = boundaries.split('-', 2);
-  const min = toNumber(boundariesParts[0]);
-  const max = toNumber(boundariesParts[1]);
-  return {
-    min,
-    max,
-  };
-}
-
-/**
- * Parse given validation rule and returns an object with:
- * - `c` The character that should match boundaries.
- * - `boundaries` The boundaries described in given rule.
- *
- * For example, this line `1-3 a` will returned:
- *
- * ```js
- * {
- *   c: 'a',
- *   boundaries: '1-3',
- * }
- * ```
- *
- * @param {string} rule The rule to parse.
- * @returns {string} The parsed line.
- */
-function parseRule(rule) {
-  const ruleParts = rule.split(' ', 2);
-  const c = ruleParts[1].trim();
-  const boundaries = ruleParts[0].trim();
-  return {
-    c,
-    boundaries,
-  };
 }
 
 /**
@@ -139,7 +81,13 @@ function parseRule(rule) {
  * ```js
  * {
  *   pwd: 'abcde',
- *   rule: '1-3 a',
+ *   rule: {
+ *     c: 'a',
+ *     boundaries: {
+ *       min: 1,
+ *       max: 3,
+ *     },
+ *   },
  * }
  * ```
  *
@@ -147,12 +95,21 @@ function parseRule(rule) {
  * @returns {string} The parsed line.
  */
 function parseLine(line) {
-  const parts = line.split(':', 2);
-  const pwd = parts[1].trim();
-  const rule = parts[0].trim();
+  const rg = new RegExp('(\\d+)-(\\d+) ([a-z]): ([a-z+]+)');
+  const matchings = rg.exec(line);
+  if (!matchings || matchings.length < 4) {
+    throw new Error('Cannot parse line: ' + line);
+  }
+
   return {
-    pwd,
-    rule,
+    pwd: matchings[4],
+    rule: {
+      c: matchings[3],
+      boundaries: {
+        min: toNumber(matchings[1]),
+        max: toNumber(matchings[2]),
+      },
+    },
   };
 }
 
