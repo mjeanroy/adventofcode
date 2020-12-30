@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-const {readFile} = require('../00/index');
+const {readParagraphs, sumOf} = require('../00/index');
 
 /**
  * Compute the sum of all positive answers of all groups of given input.
@@ -52,8 +52,10 @@ function computeSumPositiveAnswers(file) {
  * @returns {Promise<number>} A promise resolved with the sum of all the results of `computeFn`.
  */
 function compute(file, computeFn) {
-  return readFile(file).then((data) => (
-    data.split('\n\n').reduce((acc, group) => acc + computeFn(group.trim()), 0)
+  return readParagraphs(file).then((paragraphs) => (
+    sumOf(paragraphs, (group) => (
+      computeFn(group.trim())
+    ))
   ));
 }
 

@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-const {readFile, toNumber} = require('../00/index');
+const {readParagraphs, sumOf, toNumber} = require('../00/index');
 
 /**
  * Compute error rate on given input.
@@ -31,10 +31,9 @@ const {readFile, toNumber} = require('../00/index');
  * @returns {Promise} The error rate on given input.
  */
 function computeErrorRate(file) {
-  return readFile(file).then((data) => {
-    const parts = data.split('\n\n');
-    const rules = parseRules(parts[0]);
-    return computeTicketsSumOfInvalidFields(parts[2], rules);
+  return readParagraphs(file).then((paragraphs) => {
+    const rules = parseRules(paragraphs[0]);
+    return computeTicketsSumOfInvalidFields(paragraphs[2], rules);
   });
 }
 
@@ -46,12 +45,11 @@ function computeErrorRate(file) {
  * @returns {Promise} The error rate on given input.
  */
 function computeProduct(file, prefix = 'departure') {
-  return readFile(file).then((data) => {
-    const parts = data.split('\n\n');
-    const rules = parseRules(parts[0]);
-    const tickets = findValidTickets(parts[2], rules);
+  return readParagraphs(file).then((paragraphs) => {
+    const rules = parseRules(paragraphs[0]);
+    const tickets = findValidTickets(paragraphs[2], rules);
     const validRules = identifyRules(tickets, rules);
-    const myTicket = parts[1].split('\n')[1];
+    const myTicket = paragraphs[1].split('\n')[1];
     return computeTicketProduct(myTicket, validRules, prefix);
   });
 }
@@ -98,7 +96,9 @@ function parseTicket(rawTicket) {
  * @returns {number} The sum of all invalid fields in given tickets.
  */
 function computeTicketsSumOfInvalidFields(inputs, rules) {
-  return inputs.trim().split('\n').slice(1).reduce((acc, ticket) => acc + computeTicketSumOfInvalidFields(ticket, rules), 0);
+  return sumOf(inputs.trim().split('\n').slice(1), (ticket) => (
+    computeTicketSumOfInvalidFields(ticket, rules)
+  ));
 }
 
 /**
@@ -110,7 +110,9 @@ function computeTicketsSumOfInvalidFields(inputs, rules) {
  * @returns {number} The sum of all the invalid fields in given ticket.
  */
 function computeTicketSumOfInvalidFields(ticket, rules) {
-  return ticket.trim().split(',').reduce((acc, field) => acc + computeFieldErrorRate(field, rules), 0);
+  return sumOf(ticket.trim().split(','), (field) => (
+    computeFieldErrorRate(field, rules)
+  ));
 }
 
 /**

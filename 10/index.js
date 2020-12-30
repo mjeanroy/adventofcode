@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-const {readLines, toNumber} = require('../00/index');
+const {readLines, sumOf, toNumber} = require('../00/index');
 
 /**
  * Compute the number of 1-jolt differences multiplied by the number of 3-jolt differences provided
@@ -87,7 +87,9 @@ function countArrangementsAt(nextJolts, start, set, cache) {
     return 1;
   }
 
-  return nextJolts.reduce((acc, jump) => acc + computeNumberOfArrangement(set, start + jump, cache), 0);
+  return sumOf(nextJolts, (jump) => (
+    computeNumberOfArrangement(set, start + jump, cache)
+  ));
 }
 
 /**

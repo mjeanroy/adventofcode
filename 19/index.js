@@ -24,7 +24,7 @@
 
 /* eslint-disable brace-style */
 
-const {readFile} = require('../00/index');
+const {readParagraphs, sumOf} = require('../00/index');
 
 /**
  * Parse file and compute the number of invalid messages according
@@ -62,9 +62,8 @@ function part2(file) {
  * @returns {Promise<number>} A promise resolved with the number of invalid messages.
  */
 function run(file, overrideRules) {
-  return readFile(file).then((data) => {
-    const parts = data.split('\n\n');
-    const rules = parseRules(parts[0].trim().split('\n'));
+  return readParagraphs(file).then((paragraphs) => {
+    const rules = parseRules(paragraphs[0].trim().split('\n'));
 
     // A good way would have been to take care of this while creating the final regexp.
     // But... I really don't know how to specify a recursive regexp, especially for the rule 11...
@@ -76,8 +75,10 @@ function run(file, overrideRules) {
     }
 
     const regexp = produceRegex(rules, overrideRules);
-    const messages = parts[1].trim().split('\n');
-    return messages.reduce((acc, message) => acc + (isValid(message, regexp) ? 1 : 0), 0);
+    const messages = paragraphs[1].trim().split('\n');
+    return sumOf(messages, (message) => (
+      isValid(message, regexp) ? 1 : 0
+    ));
   });
 }
 

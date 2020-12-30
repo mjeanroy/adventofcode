@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-const {readLines} = require('../00/index');
+const {readLines, sumOf} = require('../00/index');
 
 const OCCUPIED = '#';
 const EMPTY = 'L';
@@ -221,7 +221,9 @@ function findNeighbour(grid, x, y, processFn) {
  * @returns {number} Number of occupied seat in the grid.
  */
 function countOccupiedSeats(grid) {
-  return grid.reduce((acc, row) => acc + computeOccupiedSeatsInRow(row), 0);
+  return sumOf(grid, (row) => (
+    computeOccupiedSeatsInRow(row)
+  ));
 }
 
 /**

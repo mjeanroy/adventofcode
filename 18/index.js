@@ -24,7 +24,7 @@
 
 /* eslint-disable brace-style */
 
-const {readLines} = require('../00/index');
+const {readLines, sumOf} = require('../00/index');
 
 const OPEN_PARENTHESIS = '(';
 const CLOSED_PARENTHESIS = ')';
@@ -54,9 +54,11 @@ const OPERATIONS = {
  * @returns {Promise<number>} A promise resolved with the sum of each expression.
  */
 function part1(file) {
-  return readLines(file).then((lines) => {
-    return lines.reduce((acc, expr) => acc + computeExpression(expr), 0);
-  });
+  return readLines(file).then((lines) => (
+    sumOf(lines, (expr) => (
+      computeExpression(expr)
+    ))
+  ));
 }
 
 /**
@@ -66,9 +68,11 @@ function part1(file) {
  * @returns {Promise<number>} A promise resolved with the sum of each expression.
  */
 function part2(file) {
-  return readLines(file).then((lines) => {
-    return lines.reduce((acc, expr) => acc + computeExpressionWithPrecedence(expr), 0);
-  });
+  return readLines(file).then((lines) => (
+    sumOf(lines, (expr) => (
+      computeExpressionWithPrecedence(expr)
+    ))
+  ));
 }
 
 /**

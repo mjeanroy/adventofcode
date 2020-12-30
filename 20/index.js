@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-const {readFile} = require('../00/index');
+const {readParagraphs, productOf} = require('../00/index');
 
 /**
  * Find all the corner in given tiles and compute the product of their ids.
@@ -31,8 +31,8 @@ const {readFile} = require('../00/index');
  * @returns {Promise<number>} The product of the four corner id.
  */
 function part1(file) {
-  return readFile(file).then((data) => {
-    const tiles = parseTiles(data);
+  return readParagraphs(file).then((paragraphs) => {
+    const tiles = parseTiles(paragraphs);
     const corners = [];
 
     for (let i = 0; i < tiles.length; ++i) {
@@ -66,18 +66,17 @@ function part1(file) {
       throw new Error('Cannot find four valid corners');
     }
 
-    return corners.reduce((acc, corner) => acc * corner, 1);
+    return productOf(corners, (corner) => corner);
   });
 }
 
 /**
  * Parse the given input to extract all tiles.
  *
- * @param {string} data All the input.
+ * @param {Array<string>} blocks All the input.
  * @returns {Array<Tile>} The tiles.
  */
-function parseTiles(data) {
-  const blocks = data.split('\n\n');
+function parseTiles(blocks) {
   const tiles = [];
 
   for (let i = 0; i < blocks.length; ++i) {

@@ -58,6 +58,19 @@ function readLines(file) {
 }
 
 /**
+ * Read file and returns a promise, resolved with an array of all the paragraphs
+ * in the given file.
+ *
+ * @param {string} file The file to read.
+ * @return {Promise<string>} The promise, resolved with all paragraphs.
+ */
+function readParagraphs(file) {
+  return readFile(file).then((data) => (
+    data.split('\n\n')
+  ));
+}
+
+/**
  * Convert given string value to the corresponding number.
  *
  * @param {string} value The value.
@@ -67,8 +80,35 @@ function toNumber(value) {
   return Number(value.trim());
 }
 
+/**
+ * Compute a sum by accumulating all intermediate values returns by the `compute``
+ * function.
+ *
+ * @param {Array<*>} array The given array.
+ * @param {function(*): number} compute The compute function.
+ * @returns {number} The sum.
+ */
+function sumOf(array, compute) {
+  return array.reduce((acc, x) => acc + compute(x), 0);
+}
+
+/**
+ * Compute a product by accumulating all intermediate values returns by the `compute``
+ * function.
+ *
+ * @param {Array<*>} array The given array.
+ * @param {function(*): number} compute The compute function.
+ * @returns {number} The sum.
+ */
+function productOf(array, compute) {
+  return array.reduce((acc, x) => acc * compute(x), 1);
+}
+
 module.exports = {
   readFile,
   readLines,
+  readParagraphs,
   toNumber,
+  sumOf,
+  productOf,
 };
