@@ -23,14 +23,14 @@
  */
 
 const path = require('path');
-const {part1} = require('./index');
+const {part2} = require('./part2');
 
 describe('day20', () => {
   it('should compute sample', async () => {
-    expect(await part1(path.join(__dirname, 'sample.txt'))).toBe(20899048083289);
+    expect(await part2(path.join(__dirname, 'sample.txt'))).toBe(273);
   });
 
   it('should compute input', async () => {
-    expect(await part1(path.join(__dirname, 'input.txt'))).toBe(17148689442341);
+    expect(await part2(path.join(__dirname, 'input.txt'))).toBe(2009);
   });
 });

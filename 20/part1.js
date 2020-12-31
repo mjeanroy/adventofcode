@@ -1,3 +1,4 @@
+
 /**
  * The MIT License (MIT)
  *
@@ -23,6 +24,7 @@
  */
 
 const {readParagraphs, productOf} = require('../00/index');
+const {parseTiles} = require('./parse-tiles');
 
 /**
  * Find all the corner in given tiles and compute the product of their ids.
@@ -37,7 +39,7 @@ function part1(file) {
 
     for (let i = 0; i < tiles.length; ++i) {
       const currentTile = tiles[i];
-      const edges = new Set(currentTile.edges);
+      const edges = new Set(currentTile.edges());
 
       for (let j = 0; j < tiles.length; ++j) {
         if (i === j) {
@@ -68,92 +70,6 @@ function part1(file) {
 
     return productOf(corners, (corner) => corner);
   });
-}
-
-/**
- * Parse the given input to extract all tiles.
- *
- * @param {Array<string>} blocks All the input.
- * @returns {Array<Tile>} The tiles.
- */
-function parseTiles(blocks) {
-  const tiles = [];
-
-  for (let i = 0; i < blocks.length; ++i) {
-    const block = blocks[i].split('\n');
-
-    const head = block[0];
-    const rg = new RegExp('Tile (\\d+):');
-    const matchings = rg.exec(head);
-    if (!matchings) {
-      throw new Error('Cannot parse tile head: ' + head);
-    }
-
-    const id = Number(matchings[1]);
-    const rows = block.slice(1);
-    tiles.push(new Tile(id, rows));
-  }
-
-  return tiles;
-}
-
-/**
- * A simple tile.
- *
- * @class
- */
-class Tile {
-  /**
-   * Create the tile and compute the eight edges.
-   *
-   * @param {number} id Tile id.
-   * @param {Array<string>} rows The tile rows.
-   * @constructor
-   */
-  constructor(id, rows) {
-    const edges = [
-      // First row
-      rows[0],
-
-      // Row on the left
-      rows.map((row) => row[0]).join(''),
-
-      // Row on the right
-      rows.map((row) => row[row.length -1]).join(''),
-
-      // Last row
-      rows[rows.length - 1],
-    ];
-
-    this.id = id;
-    this.edges = new Set(edges);
-    this.flippedEges = new Set(edges.map((edge) => reverse(edge)));
-  }
-
-  /**
-   * Check if given edge is inside one of the possible edges (rotated and/ or flipped edges).
-   *
-   * @param {string} edge The edge.
-   * @returns {boolean} `true` if given edge is inside one the eight possible edges, `false` otherwise.
-   */
-  containsEdge(edge) {
-    return this.edges.has(edge) || this.flippedEges.has(edge);
-  }
-}
-
-/**
- * Reverse string.
- *
- * @param {string} str The string.
- * @returns {string} The reversed string.
- */
-function reverse(str) {
-  let out = '';
-  for (let i = str.length - 1; i >= 0; --i) {
-    out += str[i];
-  }
-
-  return out;
 }
 
 module.exports = {
