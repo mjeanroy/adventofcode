@@ -53,7 +53,7 @@ function readFile(file) {
  */
 function readLines(file) {
   return readFile(file).then((data) => (
-    data.split('\n')
+    data.trim().split('\n')
   ));
 }
 
@@ -66,7 +66,7 @@ function readLines(file) {
  */
 function readParagraphs(file) {
   return readFile(file).then((data) => (
-    data.split('\n\n')
+    data.trim().split('\n\n')
   ));
 }
 
