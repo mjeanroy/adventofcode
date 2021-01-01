@@ -24,14 +24,22 @@
  */
 
 const path = require('path');
-const {compute} = require('./index');
+const {part1, part2} = require('./index');
 
 describe('day21', () => {
   it('should compute sample', async () => {
-    expect(await compute(path.join(__dirname, 'sample.txt'))).toBe(5);
+    expect(await part1(path.join(__dirname, 'sample.txt'))).toBe(5);
   });
 
   it('should compute input', async () => {
-    expect(await compute(path.join(__dirname, 'input.txt'))).toBe(1829);
+    expect(await part1(path.join(__dirname, 'input.txt'))).toBe(1829);
+  });
+
+  it('should compute canonical dangerous ingredient list from sample', async () => {
+    expect(await part2(path.join(__dirname, 'sample.txt'))).toBe('mxmxvkd,sqjhc,fvjkl');
+  });
+
+  it('should compute canonical dangerous ingredient list from input', async () => {
+    expect(await part2(path.join(__dirname, 'input.txt'))).toBe('mxkh,gkcqxs,bvh,sp,rgc,krjn,bpbdlmg,tdbcfb');
   });
 });

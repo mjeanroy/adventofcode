@@ -32,18 +32,53 @@ const {readLines} = require('../00/index');
  * @param {string} file File input.
  * @returns {Promise<number>} A promise resolved with the number of times ingredients that cannot possibly contains any allergen appears.
  */
-function compute(file) {
+function part1(file) {
   return readLines(file).then((lines) => {
-    const recipes = lines.map((line) => (
-      parseFood(line)
-    ));
-
-    // Get a list of possible ingredients for a given allergen.
-    // For this, just make the intersection of ingredients for each allergens
+    const recipes = lines.map((line) => parseFood(line));
     const allergens = groupIngredientsByAllergens(recipes);
     const ingredients = extractIngredients(allergens);
     return countIngredientsWithoutAllergens(recipes, ingredients);
   });
+}
+
+/**
+ * Compute the canonical dangerous ingredient list from given input.
+ *
+ * @param {string} file The file.
+ * @returns {Promise<string>} The canonical ingredient list.
+ */
+function part2(file) {
+  return readLines(file).then((lines) => {
+    const recipes = lines.map((line) => parseFood(line));
+    const allergens = groupIngredientsByAllergens(recipes);
+    const map = identityIngredients(allergens);
+    return computeCanonicalDangerousIngredientList(map);
+  });
+}
+
+/**
+ * Compute the canonical dangerous ingredient list:
+ *
+ * - Ingredients are sorted alphabetically by their allergen.
+ * - Joined into a string, separated by commas.
+ *
+ * @param {Map<string, string>} map The map of dangerous ingredients by their allergens.
+ * @returns {string} The  canonical dangerous ingredient list.
+ */
+function computeCanonicalDangerousIngredientList(map) {
+  const allergens = [...map.keys()];
+
+  // Sort keys in alphabetical order.
+  allergens.sort((x, y) => x.localeCompare(y));
+
+  // Compute the final list.
+  const ingredients = [];
+
+  for (const allergen of allergens) {
+    ingredients.push(map.get(allergen));
+  }
+
+  return ingredients.join(',');
 }
 
 /**
@@ -70,6 +105,49 @@ function countIngredientsWithoutAllergens(recipes, ingredients) {
   }
 
   return total;
+}
+
+/**
+ * Identity, for each allergen, the ingredient.
+ *
+ * @param {Map<string, Set<string>>} allergens The group of ingredients by allergens.
+ * @returns {Map<string, string>} The map of allergen -> ingredient.
+ */
+function identityIngredients(allergens) {
+  const results = new Map();
+
+  while (allergens.size > 0) {
+    const justFoundIngredients = new Set();
+
+    for (const entry of allergens.entries()) {
+      if (entry[1].size === 1) {
+        const ingredient = entry[1].values().next().value;
+        const allergen = entry[0];
+
+        // Found new mapping
+        results.set(allergen, ingredient);
+
+        // Keep in mind what we just found, we will use it next.
+        justFoundIngredients.add(ingredient);
+
+        // Remove it to not found it again and again.
+        allergens.delete(allergen);
+      }
+    }
+
+    if (justFoundIngredients.size === 0) {
+      throw new Error('Cannot identify ingredients, it looks like an infinite loop');
+    }
+
+    // Remove what we found previously.
+    for (const entry of allergens.entries()) {
+      for (const ingredient of justFoundIngredients) {
+        entry[1].delete(ingredient);
+      }
+    }
+  }
+
+  return results;
 }
 
 /**
@@ -193,5 +271,6 @@ function parseFood(food) {
 }
 
 module.exports = {
-  compute,
+  part1,
+  part2,
 };
