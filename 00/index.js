@@ -85,11 +85,11 @@ function toNumber(value) {
  * function.
  *
  * @param {Array<*>} array The given array.
- * @param {function(*): number} compute The compute function.
+ * @param {function(*, number): number} compute The compute function.
  * @returns {number} The sum.
  */
 function sumOf(array, compute) {
-  return array.reduce((acc, x) => acc + compute(x), 0);
+  return array.reduce((acc, x, i) => acc + compute(x, i), 0);
 }
 
 /**

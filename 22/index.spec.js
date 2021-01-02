@@ -23,7 +23,7 @@
  */
 
 const path = require('path');
-const {part1} = require('./index');
+const {part1, part2} = require('./index');
 
 describe('day22', () => {
   it('should compute winning player score from sample', async () => {
@@ -32,5 +32,13 @@ describe('day22', () => {
 
   it('should compute winning player score from input', async () => {
     expect(await part1(path.join(__dirname, 'input.txt'))).toBe(33561);
+  });
+
+  it('should compute recursive combat from sample', async () => {
+    expect(await part2(path.join(__dirname, 'sample.txt'))).toBe(291);
+  });
+
+  it('should compute recursive combat from input', async () => {
+    expect(await part2(path.join(__dirname, 'input.txt'))).toBe(34594);
   });
 });
