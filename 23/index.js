@@ -42,6 +42,29 @@ function part1(input, move = 100) {
 }
 
 /**
+ * Compute the labels on the cups after cup 1.
+ *
+ * @param {string} input The input.
+ * @returns {string} The output.
+ */
+function part2(input ) {
+  const cups = new Cups(input);
+
+  // Add [max+1 -> 1_000_000]
+  for (let i = cups.max + 1; i <= 1000000; ++i) {
+    cups.push(i);
+  }
+
+  // Then, move 10 000 000 times
+
+  for (let i = 0; i < 10000000; ++i) {
+    cups.move();
+  }
+
+  return cups.predict();
+}
+
+/**
  * The cups structure.
  *
  * @class
@@ -56,7 +79,8 @@ class Cups {
     // Yeah, for this puzzle, I will use a circular linked list.
     // You may ask why?
     // - The biggest advantage is that each operations needed in this puzzle can be solved in O(1) using this kind of list...
-    // )- And I don't have the chance to use this datastructure very often, so the main reason is fun!
+    // - And I don't have the chance to use this data-structure very often, so the main reason is fun!
+    // [EDIT] Ok, after resolving the part2 of the day, it looks like that was the data-structure to use :)
     this.input = new CircularLinkedList();
 
     // Track each node in a map to retrieve them in O(1).
@@ -69,15 +93,24 @@ class Cups {
     for (let i = 0; i < input.length; ++i) {
       const cup = input[i];
       const value = toNumber(cup);
-      const node = this.input.push(value);
-
-      this.nodes.set(value, node);
-      this.min = Math.min(this.min, value);
-      this.max = Math.max(this.max, value);
+      this.push(value);
     }
 
     // The current pointer, start with the head of the list.
     this.current = this.input.head();
+  }
+
+  /**
+   * Push new value into the cups list.
+   *
+   * @param {number} value The value to add.
+   * @returns {void}
+   */
+  push(value) {
+    const node = this.input.push(value);
+    this.nodes.set(value, node);
+    this.min = Math.min(this.min, value);
+    this.max = Math.max(this.max, value);
   }
 
   /**
@@ -218,6 +251,19 @@ class Cups {
   }
 
   /**
+   * Determine which two cups will end up immediately clockwise of cup 1
+   * and multiply their labels together.
+   *
+   * @returns {number} The multiplication of the next two cups after one.
+   */
+  predict() {
+    const one = this.nodes.get(1);
+    const next1 = one.next.value;
+    const next2 = one.next.next.value;
+    return next1 * next2;
+  }
+
+  /**
    * Serialize current state to a string.
    *
    * @returns {string} The serialized output.
@@ -297,5 +343,6 @@ class CircularLinkedList {
 
 module.exports = {
   part1,
+  part2,
   Cups,
 };

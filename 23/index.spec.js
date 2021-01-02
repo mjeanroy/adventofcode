@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-const {part1, Cups} = require('./index');
+const {part1, part2, Cups} = require('./index');
 
 describe('day23', () => {
   it('should compute sample with move=10', () => {
@@ -35,6 +35,14 @@ describe('day23', () => {
 
   it('should compute input with move=100', () => {
     expect(part1('253149867', 100)).toBe('34952786');
+  });
+
+  it('should predict from sample', () => {
+    expect(part2('389125467')).toBe(149245887792);
+  });
+
+  it('should predict from input', () => {
+    expect(part2('253149867')).toBe(505334281774);
   });
 
   it('should initialize cups', () => {
