@@ -49,7 +49,7 @@ function readFile(file) {
  * in the given file.
  *
  * @param {string} file The file to read.
- * @return {Promise<string>} The promise, resolved with file content.
+ * @return {Promise<Array<string>>} The promise, resolved with file content.
  */
 function readLines(file) {
   return readFile(file).then((data) => (
