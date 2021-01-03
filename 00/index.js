@@ -62,7 +62,7 @@ function readLines(file) {
  * in the given file.
  *
  * @param {string} file The file to read.
- * @return {Promise<string>} The promise, resolved with all paragraphs.
+ * @return {Promise<Array<string>>} The promise, resolved with all paragraphs.
  */
 function readParagraphs(file) {
   return readFile(file).then((data) => (
