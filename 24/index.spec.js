@@ -23,7 +23,7 @@
  */
 
 const path = require('path');
-const {part1, computePosition} = require('./index');
+const {part1, part2, computePosition} = require('./index');
 
 describe('day24', () => {
   it('should compute from sample', async () => {
@@ -36,5 +36,15 @@ describe('day24', () => {
 
   it('should compute coordinates', async () => {
     expect(computePosition('nwwswee')).toEqual([0, 0]);
+  });
+
+  it('should compute black tiles after X day from sample', async () => {
+    expect(await part2(path.join(__dirname, 'sample.txt'), 1)).toEqual(15);
+    expect(await part2(path.join(__dirname, 'sample.txt'), 10)).toEqual(37);
+    expect(await part2(path.join(__dirname, 'sample.txt'), 100)).toEqual(2208);
+  });
+
+  it('should compute black tiles after X day from input', async () => {
+    expect(await part2(path.join(__dirname, 'input.txt'), 100)).toEqual(4200);
   });
 });
