@@ -63,11 +63,8 @@ describe('day23', () => {
 
     // Should be: null -> 8 -> 9 -> 1 -> null
     expect(head.value).toBe(8);
-    expect(head.previous).toBeNull();
     expect(head.next.value).toBe(9);
-    expect(head.next.previous.value).toBe(8);
     expect(head.next.next.value).toBe(1);
-    expect(head.next.next.previous.value).toBe(9);
     expect(head.next.next.next).toBeNull();
 
     // The list should have been updated

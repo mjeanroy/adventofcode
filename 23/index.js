@@ -151,23 +151,20 @@ class Cups {
     const values = new Set();
 
     let node = head;
+    let tail = null;
     while (values.size !== 3) {
       // Store picked up value.
       values.add(node.value);
 
       // Go to the next.
+      tail = node;
       node = node.next;
     }
 
-    // Update cups
-    const tail = node.previous;
-
-    // Remove [start-head] from the list
+    // Remove [head-tail] from the list
     this.current.next = node;
-    node.previous = this.current;
 
-    // Update [start,previous] to remove links with the original list.
-    head.previous = null;
+    // Update [head-tail] to remove links with the original list.
     tail.next = null;
 
     return {
@@ -187,11 +184,7 @@ class Cups {
    */
   _placeCups(head, tail, destination) {
     const next = destination.next;
-
     destination.next = head;
-    next.previous = tail;
-
-    head.previous = destination;
     tail.next = next;
   }
 
@@ -272,13 +265,10 @@ class Cups {
     let output = '';
     let node = this.input.head();
 
-    while (node.next !== this.input.head()) {
+    do {
       output += node.value;
       node = node.next;
-    }
-
-    // Do not forget to add last one.
-    output += node.value;
+    } while (node !== this.input.head());
 
     return output;
   }
@@ -308,25 +298,18 @@ class CircularLinkedList {
     const node = {
       value,
       next: null,
-      previous: null,
     };
 
     if (this._head) {
-      node.previous = this._tail;
-      node.next = this._head;
-
       this._tail.next = node;
       this._tail = node;
-      this._head.previous = this._tail;
     } else {
       this._head = node;
-      this._head.previous = node;
-      this._head.next = node;
-
       this._tail = node;
-      this._tail.next = node;
-      this._tail.previous = node;
     }
+
+    // Fix the loop
+    this._tail.next = this._head;
 
     return node;
   }
