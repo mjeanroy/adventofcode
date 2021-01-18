@@ -22,9 +22,7 @@
  * THE SOFTWARE.
  */
 
-package com.github.mjeanroy.aoc.year2020.day01;
-
-import com.github.mjeanroy.aoc.year2020.common.AbstractDay;
+package com.github.mjeanroy.aoc.year2020;
 
 import java.util.HashSet;
 import java.util.List;
