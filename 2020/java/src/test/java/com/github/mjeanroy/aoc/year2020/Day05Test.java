@@ -28,17 +28,16 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class Day04Test {
+class Day05Test {
 
 	@Test
 	void part1_test() {
-		assertThat(Day04.part1("sample.txt")).isEqualTo(2);
-		assertThat(Day04.part1("input.txt")).isEqualTo(192);
+		assertThat(Day05.part1("sample.txt")).isEqualTo(820);
+		assertThat(Day05.part1("input.txt")).isEqualTo(896);
 	}
 
 	@Test
 	void part2_test() {
-		assertThat(Day04.part2("sample.txt")).isEqualTo(2);
-		assertThat(Day04.part2("input.txt")).isEqualTo(101);
+		assertThat(Day05.part2("input.txt")).isEqualTo(659);
 	}
 }
