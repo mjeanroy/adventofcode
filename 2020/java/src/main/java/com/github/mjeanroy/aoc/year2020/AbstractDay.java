@@ -32,6 +32,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+import static java.util.Arrays.asList;
+
 public abstract class AbstractDay {
 
 	protected static int toInt(String value) {
@@ -43,7 +45,7 @@ public abstract class AbstractDay {
 	}
 
 	protected static List<String> readLines(String dir, String file) {
-		return readLines("/" + dir + "/" + file);
+		return readLines(toFilePath(dir, file));
 	}
 
 	protected static List<String> readLines(String file) {
@@ -55,6 +57,19 @@ public abstract class AbstractDay {
 		catch (IOException e) {
 			throw new AssertionError(e);
 		}
+	}
+
+	protected static List<String> readParagraphs(String dir, String file) {
+		return readParagraphs(toFilePath(dir, file));
+	}
+
+	protected static List<String> readParagraphs(String file) {
+		String text = String.join("\n", readLines(file)).trim();
+		return asList(text.split("\n\n"));
+	}
+
+	private static String toFilePath(String dir, String file) {
+		return "/" + dir + "/" + file;
 	}
 
 	private static Path toPath(String file) {
