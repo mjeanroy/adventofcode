@@ -24,54 +24,76 @@
 
 package com.github.mjeanroy.aoc.year2020;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
-final class Day01 extends AbstractDay {
+import static java.util.Arrays.asList;
+
+final class Day03 extends AbstractDay {
+
+	private static final char TREE = '#';
 
 	static long part1(String file) {
-		List<String> lines = readLines("day01", file);
-		Pair pair = findPair(lines, 2020).orElseThrow(() -> new AssertionError("Cannot find pair matching 2020"));
-		return pair.x * pair.y;
+		List<String> lines = readLines("day03", file);
+		Slope slope = new Slope(3, 1);
+		return countTrees(lines, slope);
 	}
 
 	static long part2(String file) {
-		List<String> lines = readLines("day01", file);
-		for (String value : lines) {
-			long nb = toLong(value);
-			long target = 2020 - nb;
-			Optional<Pair> pair = findPair(lines, target);
-			if (pair.isPresent()) {
-				return nb * pair.get().x * pair.get().y;
-			}
+		List<String> lines = readLines("day03", file);
+		List<Slope> slopes = asList(
+				new Slope(1, 1),
+				new Slope(3, 1),
+				new Slope(5, 1),
+				new Slope(7, 1),
+				new Slope(1, 2)
+		);
+
+		long product = 1;
+
+		for (Slope slope : slopes) {
+			product *= countTrees(lines, slope);
 		}
 
-		throw new AssertionError("Cannot find triplet matching 2020");
+		return product;
 	}
 
-	private static Optional<Pair> findPair(List<String> lines, long target) {
-		Set<Long> entries = new HashSet<>();
 
-		for (String value : lines) {
-			long x = toLong(value);
-			long lookingFor = target - x;
-			if (entries.contains(lookingFor)) {
-				return Optional.of(new Pair(x, lookingFor));
+	private static long countTrees(List<String> lines, Slope slope) {
+		int nbRows = lines.size();
+
+		long count = 0;
+		Position position = new Position(0, 0);
+
+		while (position.y < nbRows) {
+			String row = lines.get(position.y);
+			char c = row.charAt(position.x);
+			if (c == TREE) {
+				count++;
 			}
 
-			entries.add(x);
+			int nextY = position.y + slope.down;
+			int nextX = (position.x + slope.right) % row.length();
+			position = new Position(nextX, nextY);
 		}
 
-		return Optional.empty();
+		return count;
 	}
 
-	private static class Pair {
-		private final long x;
-		private final long y;
+	private static final class Slope {
+		private final int right;
+		private final int down;
 
-		private Pair(long x, long y) {
+		private Slope(int right, int down) {
+			this.right = right;
+			this.down = down;
+		}
+	}
+
+	private static final class Position {
+		private final int x;
+		private final int y;
+
+		private Position(int x, int y) {
 			this.x = x;
 			this.y = y;
 		}

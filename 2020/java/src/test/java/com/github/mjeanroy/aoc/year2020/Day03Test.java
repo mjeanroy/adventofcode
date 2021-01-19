@@ -24,49 +24,21 @@
 
 package com.github.mjeanroy.aoc.year2020;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
+import org.junit.jupiter.api.Test;
 
-public abstract class AbstractDay {
+import static org.assertj.core.api.Assertions.assertThat;
 
-	protected static int toInt(String value) {
-		return Integer.parseInt(value);
+class Day03Test {
+
+	@Test
+	void it_should_compute_part1() {
+		assertThat(Day03.part1("sample.txt")).isEqualTo(7L);
+		assertThat(Day03.part1("input.txt")).isEqualTo(228L);
 	}
 
-	protected static long toLong(String value) {
-		return Long.parseLong(value);
-	}
-
-	protected static List<String> readLines(String dir, String file) {
-		return readLines("/" + dir + "/" + file);
-	}
-
-	protected static List<String> readLines(String file) {
-		Path path = toPath(file);
-
-		try {
-			return Files.readAllLines(path);
-		}
-		catch (IOException e) {
-			throw new AssertionError(e);
-		}
-	}
-
-	private static Path toPath(String file) {
-		return Paths.get(toUri(file));
-	}
-
-	private static URI toUri(String file) {
-		try {
-			return AbstractDay.class.getResource(file).toURI();
-		}
-		catch (URISyntaxException ex) {
-			throw new AssertionError(ex);
-		}
+	@Test
+	void it_should_compute_part2() {
+		assertThat(Day03.part2("sample.txt")).isEqualTo(336L);
+		assertThat(Day03.part2("input.txt")).isEqualTo(6818112000L);
 	}
 }

@@ -40,7 +40,7 @@ final class Day02 extends AbstractDay {
 	}
 
 	private static int countValid(String file, Predicate<Line> predicate) {
-		List<String> lines = read(file);
+		List<String> lines = readLines("day02", file);
 
 		int nbValid = 0;
 
@@ -92,10 +92,6 @@ final class Day02 extends AbstractDay {
 
 		Policy policy = new Policy(matcher.group(3).charAt(0), toInt(matcher.group(1)), toInt(matcher.group(2)));
 		return new Line(policy, matcher.group(4));
-	}
-
-	private static List<String> read(String file) {
-		return readLines("/day02/" + file);
 	}
 
 	private static final class Line {
