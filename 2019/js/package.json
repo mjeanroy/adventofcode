@@ -1,0 +1,18 @@
+{
+  "name": "adventofcode-2019",
+  "version": "1.0.0",
+  "description": "Advent Of Code 2019",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint '**/*.js' --ignore-pattern /node_modules/",
+    "test": "jest"
+  },
+  "author": "Mickael Jeanroy <mickael.jeanroy@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "eslint": "^7.16.0",
+    "eslint-config-google": "^0.14.0",
+    "jest": "^26.6.3"
+  }
+}
