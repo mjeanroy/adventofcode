@@ -55,9 +55,35 @@ function sumOf(array, compute) {
   return array.reduce((acc, x, i) => acc + compute(x, i), 0);
 }
 
+function minOf(iterable, compute) {
+  let min = Number.MAX_SAFE_INTEGER;
+  for (const x of iterable) {
+    const value = compute(x);
+    if (value < min) {
+      min = value;
+    }
+  }
+
+  return min;
+}
+
+function intersect(set1, set2) {
+  const set = new Set();
+
+  for (const x of set1) {
+    if (set2.has(x)) {
+      set.add(x);
+    }
+  }
+
+  return set;
+}
+
 module.exports = {
   readFile,
   readLines,
   toNumber,
   sumOf,
+  minOf,
+  intersect,
 };
