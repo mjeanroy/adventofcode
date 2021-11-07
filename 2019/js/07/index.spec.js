@@ -22,44 +22,18 @@
  * THE SOFTWARE.
  */
 
-const {readFile, toNumber} = require('../00/index');
-const {intcode} = require('../00/intcode-computer');
+const {part01} = require('./index');
 
-function part1(file) {
-  return readFile(file).then((data) => {
-    const memory = data.trim().split(',').map((x) => toNumber(x));
+describe('day07', () => {
+  describe('part01', () => {
+    it('should compute samples', async () => {
+      expect(await(part01('sample1.txt'))).toBe(43210);
+      expect(await(part01('sample2.txt'))).toBe(54321);
+      expect(await(part01('sample3.txt'))).toBe(65210);
+    });
 
-    // Before running the program, replace position 1 with the value 12 and replace position 2 with the value 2
-    memory[1] = 12;
-    memory[2] = 2;
-
-    return intcode(memory).memory[0];
+    it('should compute input', async () => {
+      expect(await(part01('input.txt'))).toBe(67023);
+    });
   });
-}
-
-function part2(file) {
-  return readFile(file).then((data) => {
-    const values = data.trim().split(',').map((x) => toNumber(x));
-
-    for (let noun = 0; noun <= 99; ++noun) {
-      for (let verb = 0; verb <= 99; ++verb) {
-        const memory = values.slice();
-
-        memory[1] = noun;
-        memory[2] = verb;
-
-        const result = intcode(memory).memory[0];
-        if (result === 19690720) {
-          return 100 * noun + verb;
-        }
-      }
-    }
-
-    throw new Error('Cannot find noun & verb matching 19690720');
-  });
-}
-
-module.exports = {
-  part1,
-  part2,
-};
+});

@@ -29,7 +29,7 @@ describe('01', () => {
   describe('part1', () => {
     it('should compute mass of sample', async () => {
       const sum = await part1(path.join(__dirname, 'sample.txt'));
-      expect(sum).toBe(3375990);
+      expect(sum).toBe(34241);
     });
 
     it('should compute mass of input', async () => {

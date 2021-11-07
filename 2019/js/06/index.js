@@ -23,7 +23,7 @@
  */
 
 const path = require('path');
-const {readLines} = require('../00');
+const {readLines} = require('../00/index');
 
 class Galaxy {
   constructor() {

@@ -23,25 +23,56 @@
  */
 
 const path = require('path');
-const {readFile, toNumber} = require('../00/index');
+const {maxOf, readFile, toNumber} = require('../00/index');
 const {intcode} = require('../00/intcode-computer');
 
+function generateCombinations(array) {
+  if (!array || !array.length) {
+    return [];
+  }
+
+  if (array.length === 1) {
+    return [
+      [array[0]],
+    ];
+  }
+
+  const permutations = [];
+
+  for (let i = 0; i < array.length; ++i) {
+    const input = array.slice();
+    const value = input.splice(i, 1)[0];
+    const subsequentCombinations = generateCombinations(input);
+    for (const subsequentCombination of subsequentCombinations) {
+      permutations.push([value, ...subsequentCombination]);
+    }
+  }
+
+  return permutations;
+}
+
+function execute(phaseSettings, memory) {
+  const initialOutput = 0;
+  const reducer = (previousOutput, phaseSetting) => {
+    const computer = intcode(memory, [phaseSetting, previousOutput]);
+    const output = computer.output;
+    return Number(output);
+  };
+
+  return phaseSettings.reduce(reducer, initialOutput);
+}
+
 function part01(fileName) {
-  return execute(fileName, 1);
-}
-
-function part02(fileName, input = 5) {
-  return execute(fileName, input);
-}
-
-function execute(fileName, input) {
-  return readFile(path.join(__dirname, fileName)).then((rawFile) => {
-    const memory = rawFile.split(',').map((value) => toNumber(value));
-    return intcode(memory, [input]).output;
+  const file = path.join(__dirname, fileName);
+  return readFile(file).then((content) => {
+    const memory = content.split(',').map((value) => toNumber(value));
+    const combinations = generateCombinations([0, 1, 2, 3, 4]);
+    return maxOf(combinations, (phaseSetting) => (
+      execute(phaseSetting, memory)
+    ));
   });
 }
 
 module.exports = {
   part01,
-  part02,
 };
