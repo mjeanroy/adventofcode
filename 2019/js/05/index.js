@@ -68,6 +68,10 @@ class Computer {
     this.write(this.input);
   }
 
+  moveAt(position) {
+    this.position = position;
+  }
+
   _at(position) {
     return this.memory[position];
   }
@@ -117,16 +121,61 @@ const opcodes = {
       computer.out(value);
     },
   },
+
+  '05': {
+    execute({computer, instruction}) {
+      const x = computer.nextParameter(instruction.parameterMode(0));
+      const y = computer.nextParameter(instruction.parameterMode(1));
+      if (x) {
+        computer.moveAt(y);
+      }
+    },
+  },
+
+  '06': {
+    execute({computer, instruction}) {
+      const x = computer.nextParameter(instruction.parameterMode(0));
+      const y = computer.nextParameter(instruction.parameterMode(1));
+      if (!x) {
+        computer.moveAt(y);
+      }
+    },
+  },
+
+  '07': {
+    execute({computer, instruction}) {
+      const x = computer.nextParameter(instruction.parameterMode(0));
+      const y = computer.nextParameter(instruction.parameterMode(1));
+      computer.write(x < y ? 1 : 0);
+    },
+  },
+
+  '08': {
+    execute({computer, instruction}) {
+      const x = computer.nextParameter(instruction.parameterMode(0));
+      const y = computer.nextParameter(instruction.parameterMode(1));
+      computer.write(x === y ? 1 : 0);
+    },
+  },
 };
 
 function part01(fileName) {
+  return run(fileName, 1);
+}
+
+function part02(fileName, input = 5) {
+  return run(fileName, input);
+}
+
+function run(fileName, input) {
   return readFile(path.join(__dirname, fileName)).then((rawFile) => {
     const computer = new Computer({
       memory: rawFile.split(',').map((value) => toNumber(value)),
-      input: 1,
+      input,
     });
 
     let instruction = computer.nextInstruction();
+
     while (instruction.opcode !== '99') {
       const opcodeHandler = opcodes[instruction.opcode];
       if (!opcodeHandler) {
@@ -147,4 +196,5 @@ function part01(fileName) {
 
 module.exports = {
   part01,
+  part02,
 };

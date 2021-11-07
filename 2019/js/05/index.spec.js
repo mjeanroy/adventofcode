@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-const {part01} = require('./index');
+const {part01, part02} = require('./index');
 
 describe('day 05', () => {
   describe('part01', () => {
@@ -34,6 +34,23 @@ describe('day 05', () => {
     it('should compute output for input', async () => {
       const outputs = await part01('input.txt');
       expect(outputs).toEqual('9938601');
+    });
+  });
+
+  describe('part02', () => {
+    it('should compute output for sample1.txt', async () => {
+      const r1 = await part02('sample1.txt', 1);
+      const r2 = await part02('sample1.txt', 8);
+      const r3 = await part02('sample1.txt', 10);
+
+      expect(r1).toEqual('999');
+      expect(r2).toEqual('1000');
+      expect(r3).toEqual('1001');
+    });
+
+    it('should compute output for input.txt', async () => {
+      const result = await part02('input.txt', 5);
+      expect(result).toEqual('4283952');
     });
   });
 });
