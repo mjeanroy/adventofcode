@@ -27,9 +27,9 @@ const {part01} = require('./index');
 describe('day07', () => {
   describe('part01', () => {
     it('should compute samples', async () => {
-      expect(await(part01('sample1.txt'))).toBe(43210);
-      expect(await(part01('sample2.txt'))).toBe(54321);
-      expect(await(part01('sample3.txt'))).toBe(65210);
+      expect(await(part01('sample1_part1.txt'))).toBe(43210);
+      expect(await(part01('sample2_part1.txt'))).toBe(54321);
+      expect(await(part01('sample3_part1.txt'))).toBe(65210);
     });
 
     it('should compute input', async () => {

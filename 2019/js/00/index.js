@@ -79,6 +79,14 @@ function sumOf(array, compute) {
   return array.reduce((acc, x, i) => acc + compute(x, i), 0);
 }
 
+/**
+ * Compute a given value for each element of given iterable, and returns the min computed
+ * value.
+ *
+ * @param {Iterable<*>} iterable Given iterable.
+ * @param {function} compute The computation function.
+ * @returns {number} The maximum computed value.
+ */
 function minOf(iterable, compute) {
   let min = Number.MAX_SAFE_INTEGER;
   for (const x of iterable) {
@@ -91,8 +99,17 @@ function minOf(iterable, compute) {
   return min;
 }
 
+/**
+ * Compute a given value for each element of given iterable, and returns the max computed
+ * value.
+ *
+ * @param {Iterable<*>} iterable Given iterable.
+ * @param {function} compute The computation function.
+ * @returns {number} The maximum computed value.
+ */
 function maxOf(iterable, compute) {
   let max = Number.MIN_SAFE_INTEGER;
+
   for (const x of iterable) {
     const value = compute(x);
     if (value > max) {
@@ -103,6 +120,13 @@ function maxOf(iterable, compute) {
   return max;
 }
 
+/**
+ * Compute intersection of given sets.
+ *
+ * @param {Set<*>} set1 First set.
+ * @param {Set<*>} set2 Second set.
+ * @returns {Set<*>} Intersection of both set.
+ */
 function intersect(set1, set2) {
   const set = new Set();
 
@@ -115,10 +139,58 @@ function intersect(set1, set2) {
   return set;
 }
 
+
+/**
+ * Generate all permutations of given array.
+ * For example:
+ *
+ * ```
+ * const permutations = generateCombinations([1, 2, 3]);
+ * //
+ * // permutations === [
+ * //   [1, 2, 3],
+ * //   [1, 3, 2],
+ * //   [2, 1, 3],
+ * //   [2, 3, 1],
+ * //   [3, 1, 2],
+ * //   [3, 2, 1],
+ * // ]
+ * //
+ * ```
+ *
+ * @param {Array<*>} array Given array.
+ * @returns {Array<Array<*>>} All permutations.
+ */
+function permutations(array) {
+  if (!array || !array.length) {
+    return [];
+  }
+
+  if (array.length === 1) {
+    return [
+      [array[0]],
+    ];
+  }
+
+  const outputs = [];
+
+  for (let i = 0; i < array.length; ++i) {
+    const input = array.slice();
+    const value = input.splice(i, 1)[0];
+    const subsequentCombinations = permutations(input);
+    for (const subsequentCombination of subsequentCombinations) {
+      outputs.push([value, ...subsequentCombination]);
+    }
+  }
+
+  return outputs;
+}
+
 module.exports = {
   intersect,
   maxOf,
   minOf,
+  permutations,
   readFile,
   readLines,
   sumOf,

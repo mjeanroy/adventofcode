@@ -22,10 +22,23 @@
  * THE SOFTWARE.
  */
 
+const POSITION_MODE = '0';
+const OP_CODE_STOP = '99';
+const OP_CODE_SIZE = 2;
+
+function leftPad(value, length, placeholder) {
+  let out = value;
+  while (out.length < length) {
+    out = placeholder + out;
+  }
+
+  return out;
+}
+
 class IntCodeInstruction {
   constructor(instruction) {
-    this.instruction = instruction.toString();
-    this.opcode = `00${this.instruction}`.slice(-2);
+    this.instruction = leftPad(instruction.toString(), 5, POSITION_MODE);
+    this.opcode = leftPad(instruction.toString(), OP_CODE_SIZE, POSITION_MODE).slice(-OP_CODE_SIZE);
   }
 
   parameterMode(index) {
@@ -34,73 +47,83 @@ class IntCodeInstruction {
   }
 }
 
-class IntCodeInputs {
-  constructor(inputs) {
-    this._inputs = inputs;
-    this._position = 0;
-  }
-
-  nextInput() {
-    const value = this._inputs[
-        this._position % this._inputs.length
-    ];
-
-    this._position++;
-    return value;
-  }
-}
-
 class IntCodeComputer {
   constructor({memory, inputs}) {
     this.memory = memory;
-    this.inputs = new IntCodeInputs(inputs);
-    this.position = 0;
-    this.output = '';
+    this.output = null;
+
+    this._position = 0;
+    this._inputs = inputs.slice();
   }
 
-  nextInstruction() {
-    const value = this._readNext(this.position);
-    return new IntCodeInstruction(value);
+  run(inputs = []) {
+    this._inputs.push(...inputs);
+
+    let instruction = this._nextInstruction();
+    while (instruction.opcode !== OP_CODE_STOP) {
+      const opcodeHandler = opcodes[instruction.opcode];
+      if (!opcodeHandler) {
+        throw new Error(`Unknown opcode: ${instruction.opcode}`);
+      }
+
+      opcodeHandler.execute({
+        computer: this,
+        instruction,
+      });
+
+      instruction = this._nextInstruction();
+    }
+
+    return this.output;
   }
 
   nextParameter(mode) {
-    const value = this._readNext(this.position);
-    return mode === '0' ? this._at(value) : value;
+    const value = this._readNext();
+    return mode === POSITION_MODE ? this._at(value) : value;
   }
 
   write(value) {
-    const position = this._readNext(this.position);
-    this._write(position, value);
+    this._writeAt(this._readNext(), value);
   }
 
   out(value) {
-    this.output = value.toString();
+    this.output = value;
   }
 
   writeInput() {
-    this.write(this.inputs.nextInput());
+    if (this._inputs.length === 0) {
+      throw new Error('Cannot read empty input');
+    }
+
+    this.write(this._inputs.shift());
   }
 
   moveAt(position) {
-    this.position = position;
+    this._position = position;
+  }
+
+  _nextInstruction() {
+    const value = this._readNext();
+    return new IntCodeInstruction(value);
   }
 
   _at(position) {
+    if (position < 0 || position >= this.memory.length) {
+      throw new Error(
+          `Cannot read position: ${position}`,
+      );
+    }
+
     return this.memory[position];
   }
 
-  _readNext(position) {
-    const value = this._at(position);
-    this._move();
-    return value;
+  _readNext() {
+    // Read current memory entry, and move on to the next position.
+    return this._at(this._position++);
   }
 
-  _write(position, value) {
+  _writeAt(position, value) {
     this.memory[position] = value;
-  }
-
-  _move() {
-    ++this.position;
   }
 }
 
@@ -108,16 +131,28 @@ class IntCodeComputer {
 const opcodes = {
   '01': {
     execute({computer, instruction}) {
-      const x = computer.nextParameter(instruction.parameterMode(0));
-      const y = computer.nextParameter(instruction.parameterMode(1));
+      const x = computer.nextParameter(
+          instruction.parameterMode(0),
+      );
+
+      const y = computer.nextParameter(
+          instruction.parameterMode(1),
+      );
+
       computer.write(x + y);
     },
   },
 
   '02': {
     execute({computer, instruction}) {
-      const x = computer.nextParameter(instruction.parameterMode(0));
-      const y = computer.nextParameter(instruction.parameterMode(1));
+      const x = computer.nextParameter(
+          instruction.parameterMode(0),
+      );
+
+      const y = computer.nextParameter(
+          instruction.parameterMode(1),
+      );
+
       computer.write(x * y);
     },
   },
@@ -130,16 +165,24 @@ const opcodes = {
 
   '04': {
     execute({computer, instruction}) {
-      const parameterMode = instruction.parameterMode(0);
-      const value = computer.nextParameter(parameterMode);
+      const value = computer.nextParameter(
+          instruction.parameterMode(0),
+      );
+
       computer.out(value);
     },
   },
 
   '05': {
     execute({computer, instruction}) {
-      const x = computer.nextParameter(instruction.parameterMode(0));
-      const y = computer.nextParameter(instruction.parameterMode(1));
+      const x = computer.nextParameter(
+          instruction.parameterMode(0),
+      );
+
+      const y = computer.nextParameter(
+          instruction.parameterMode(1),
+      );
+
       if (x) {
         computer.moveAt(y);
       }
@@ -148,8 +191,14 @@ const opcodes = {
 
   '06': {
     execute({computer, instruction}) {
-      const x = computer.nextParameter(instruction.parameterMode(0));
-      const y = computer.nextParameter(instruction.parameterMode(1));
+      const x = computer.nextParameter(
+          instruction.parameterMode(0),
+      );
+
+      const y = computer.nextParameter(
+          instruction.parameterMode(1),
+      );
+
       if (!x) {
         computer.moveAt(y);
       }
@@ -158,46 +207,49 @@ const opcodes = {
 
   '07': {
     execute({computer, instruction}) {
-      const x = computer.nextParameter(instruction.parameterMode(0));
-      const y = computer.nextParameter(instruction.parameterMode(1));
+      const x = computer.nextParameter(
+          instruction.parameterMode(0),
+      );
+
+      const y = computer.nextParameter(
+          instruction.parameterMode(1),
+      );
+
       computer.write(x < y ? 1 : 0);
     },
   },
 
   '08': {
     execute({computer, instruction}) {
-      const x = computer.nextParameter(instruction.parameterMode(0));
-      const y = computer.nextParameter(instruction.parameterMode(1));
+      const x = computer.nextParameter(
+          instruction.parameterMode(0),
+      );
+
+      const y = computer.nextParameter(
+          instruction.parameterMode(1),
+      );
+
       computer.write(x === y ? 1 : 0);
     },
   },
 };
 
-function intcode(memory, inputs = []) {
+function intcode(initialMemory, inputs = []) {
   const computer = new IntCodeComputer({
-    memory: memory.slice(),
+    memory: initialMemory.slice(),
     inputs,
   });
 
-  let instruction = computer.nextInstruction();
+  const output = computer.run();
+  const memory = computer.memory;
 
-  while (instruction.opcode !== '99') {
-    const opcodeHandler = opcodes[instruction.opcode];
-    if (!opcodeHandler) {
-      throw new Error(`Unknown opcode: ${instruction.opcode}`);
-    }
-
-    opcodeHandler.execute({
-      computer,
-      instruction,
-    });
-
-    instruction = computer.nextInstruction();
-  }
-
-  return computer;
+  return {
+    memory,
+    output,
+  };
 }
 
 module.exports = {
   intcode,
+  IntCodeComputer,
 };
