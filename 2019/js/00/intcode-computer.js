@@ -50,34 +50,21 @@ class IntCodeComputer {
     this._inputs = inputs.slice();
   }
 
-  run(inputs = []) {
-    this._inputs.push(...inputs);
-
-    let instruction = this._nextInstruction();
-
-    while (instruction.opcode !== OP_CODE_STOP) {
-      const opcodeHandler = opcodes[instruction.opcode];
-      if (!opcodeHandler) {
-        throw new Error(`Unknown opcode: ${instruction.opcode}`);
-      }
-
-      opcodeHandler.execute({
-        computer: this,
-        instruction,
-      });
-
-      if (instruction.opcode === '04') {
-        // Send output to next
-        break;
-      }
-
-      instruction = this._nextInstruction();
+  run() {
+    while (!this.halted) {
+      this.runCycle();
     }
 
-    if (instruction.opcode === OP_CODE_STOP) {
-      this.halted = true;
+    return this.output;
+  }
+
+  runCycle(inputs = []) {
+    if (this.halted) {
+      throw new Error('Cannot run cycle, current computer is halted');
     }
 
+    this._addInputs(inputs);
+    this._run();
     return this.output;
   }
 
@@ -104,6 +91,37 @@ class IntCodeComputer {
 
   moveAt(position) {
     this._position = position;
+  }
+
+  _addInputs(inputs) {
+    this._inputs.push(...inputs);
+  }
+
+  _run() {
+    let instruction = this._nextInstruction();
+
+    while (instruction.opcode !== OP_CODE_STOP) {
+      const opcodeHandler = opcodes[instruction.opcode];
+      if (!opcodeHandler) {
+        throw new Error(`Unknown opcode: ${instruction.opcode}`);
+      }
+
+      opcodeHandler.execute({
+        computer: this,
+        instruction,
+      });
+
+      if (instruction.opcode === '04') {
+        // Send output to next
+        break;
+      }
+
+      instruction = this._nextInstruction();
+    }
+
+    if (instruction.opcode === OP_CODE_STOP) {
+      this.halted = true;
+    }
   }
 
   _nextInstruction() {
@@ -244,13 +262,11 @@ function intcode(initialMemory, inputs = []) {
     inputs,
   });
 
-  let output = null;
-  while (!computer.halted) {
-    output = computer.run();
-  }
+  const output = computer.run();
+  const memory = computer.memory.slice();
 
   return {
-    memory: computer.memory,
+    memory,
     output,
   };
 }

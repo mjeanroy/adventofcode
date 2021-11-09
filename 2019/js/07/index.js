@@ -37,9 +37,7 @@ function part01(fileName) {
       for (const phase of phaseSettings) {
         const inputs = [phase, output];
         const computer = new IntCodeComputer({memory, inputs});
-        while (!computer.halted) {
-          output = computer.run();
-        }
+        output = computer.run();
       }
 
       return output;
@@ -59,7 +57,7 @@ class Circuit {
     let output = 0;
 
     while (!this._lastAmplifier().halted) {
-      output = this._nextAmplifier().run([output]);
+      output = this._nextAmplifier().runCycle([output]);
     }
 
     return this._lastAmplifier().output;
