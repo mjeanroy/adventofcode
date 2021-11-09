@@ -25,6 +25,8 @@
 const {leftPad} = require('./index');
 
 const POSITION_MODE = '0';
+const IMMEDIATE_MODE = '1';
+const RELATIVE_MODE = '2';
 
 const OP_CODE_ADDS = '01';
 const OP_CODE_MULTIPLIES = '02';
@@ -34,6 +36,7 @@ const OP_CODE_JUMP_IF_TRUE = '05';
 const OP_CODE_JUMP_IF_FALSE = '06';
 const OP_CODE_LESS_THAN = '07';
 const OP_CODE_EQUALS = '08';
+const OP_CODE_RELATIVE_BASE = '09';
 const OP_CODE_STOP = '99';
 
 const OP_CODE_SIZE = 2;
@@ -58,6 +61,7 @@ class IntCodeComputer {
 
     this._position = 0;
     this._inputs = inputs.slice();
+    this._relativeBase = 0;
   }
 
   /**
@@ -98,7 +102,19 @@ class IntCodeComputer {
    */
   nextParameter(mode) {
     const value = this._readNext();
-    return mode === POSITION_MODE ? this._at(value) : value;
+    if (mode === IMMEDIATE_MODE) {
+      return value;
+    }
+
+    if (mode === POSITION_MODE) {
+      return this._at(value);
+    }
+
+    if (mode === RELATIVE_MODE) {
+      return this._at(value + this._relativeBase);
+    }
+
+    throw new Error(`Unknown parameter mode: ${mode}`);
   }
 
   /**
@@ -106,10 +122,27 @@ class IntCodeComputer {
    * move the pointer to the next position.
    *
    * @param {number} value Value to write.
+   * @param {string} parameterMode The parameter mode.
    * @returns {void}
    */
-  write(value) {
-    this._writeAt(this._readNext(), value);
+  write(value, parameterMode = POSITION_MODE) {
+    let writePosition = this._readNext();
+    if (parameterMode === RELATIVE_MODE) {
+      writePosition = writePosition + this._relativeBase;
+    }
+
+    this._writeAt(writePosition, value);
+  }
+
+  /**
+   * Increase relative base position by given value.
+   * Value can be positive or negative (with a negative value, relative base will, in fact, decrease).
+   *
+   * @param {number} value Value to add.
+   * @returns {void}
+   */
+  increaseRelativeBase(value) {
+    this._relativeBase += value;
   }
 
   /**
@@ -128,14 +161,15 @@ class IntCodeComputer {
    * - Move the instruction pointer to the next position.
    * - Remove the input value that has been used.
    *
+   * @param {string} mode The parameter mode.
    * @returns {void}
    */
-  writeInput() {
+  writeInput(mode = POSITION_MODE) {
     if (this._inputs.length === 0) {
       throw new Error('Cannot read empty input');
     }
 
-    this.write(this._inputs.shift());
+    this.write(this._inputs.shift(), mode);
   }
 
   /**
@@ -213,11 +247,17 @@ class IntCodeComputer {
    * @private
    */
   _at(position) {
-    if (position < 0 || position >= this.memory.length) {
+    if (position < 0) {
       throw new Error(`Cannot read position: ${position}`);
     }
 
-    return this.memory[position];
+    // Returns zero if out of bounds
+    if (position >= this.memory.length) {
+      return 0;
+    }
+
+    // Default is zero
+    return this.memory[position] ?? 0;
   }
 
   /**
@@ -239,58 +279,42 @@ class IntCodeComputer {
 const opcodes = {
   [OP_CODE_ADDS]: {
     execute({computer, instruction}) {
-      const x = computer.nextParameter(
-          instruction.parameterMode(0),
-      );
-
-      const y = computer.nextParameter(
-          instruction.parameterMode(1),
-      );
-
-      computer.write(x + y);
+      const x = computer.nextParameter(instruction.parameterMode(0));
+      const y = computer.nextParameter(instruction.parameterMode(1));
+      const value = x + y;
+      const mode = instruction.parameterMode(2);
+      computer.write(value, mode);
     },
   },
 
   [OP_CODE_MULTIPLIES]: {
     execute({computer, instruction}) {
-      const x = computer.nextParameter(
-          instruction.parameterMode(0),
-      );
-
-      const y = computer.nextParameter(
-          instruction.parameterMode(1),
-      );
-
-      computer.write(x * y);
+      const x = computer.nextParameter(instruction.parameterMode(0));
+      const y = computer.nextParameter(instruction.parameterMode(1));
+      const value = x * y;
+      const mode = instruction.parameterMode(2);
+      computer.write(value, mode);
     },
   },
 
   [OP_CODE_INPUT]: {
-    execute({computer}) {
-      computer.writeInput();
+    execute({computer, instruction}) {
+      const mode = instruction.parameterMode(0);
+      computer.writeInput(mode);
     },
   },
 
   [OP_CODE_OUTPUT]: {
     execute({computer, instruction}) {
-      const value = computer.nextParameter(
-          instruction.parameterMode(0),
-      );
-
+      const value = computer.nextParameter(instruction.parameterMode(0));
       computer.out(value);
     },
   },
 
   [OP_CODE_JUMP_IF_TRUE]: {
     execute({computer, instruction}) {
-      const x = computer.nextParameter(
-          instruction.parameterMode(0),
-      );
-
-      const y = computer.nextParameter(
-          instruction.parameterMode(1),
-      );
-
+      const x = computer.nextParameter(instruction.parameterMode(0));
+      const y = computer.nextParameter(instruction.parameterMode(1));
       if (x) {
         computer.moveAt(y);
       }
@@ -299,14 +323,8 @@ const opcodes = {
 
   [OP_CODE_JUMP_IF_FALSE]: {
     execute({computer, instruction}) {
-      const x = computer.nextParameter(
-          instruction.parameterMode(0),
-      );
-
-      const y = computer.nextParameter(
-          instruction.parameterMode(1),
-      );
-
+      const x = computer.nextParameter(instruction.parameterMode(0));
+      const y = computer.nextParameter(instruction.parameterMode(1));
       if (!x) {
         computer.moveAt(y);
       }
@@ -315,29 +333,28 @@ const opcodes = {
 
   [OP_CODE_LESS_THAN]: {
     execute({computer, instruction}) {
-      const x = computer.nextParameter(
-          instruction.parameterMode(0),
-      );
-
-      const y = computer.nextParameter(
-          instruction.parameterMode(1),
-      );
-
-      computer.write(x < y ? 1 : 0);
+      const x = computer.nextParameter(instruction.parameterMode(0));
+      const y = computer.nextParameter(instruction.parameterMode(1));
+      const value = x < y ? 1 : 0;
+      const mode = instruction.parameterMode(2);
+      computer.write(value, mode);
     },
   },
 
   [OP_CODE_EQUALS]: {
     execute({computer, instruction}) {
-      const x = computer.nextParameter(
-          instruction.parameterMode(0),
-      );
+      const x = computer.nextParameter(instruction.parameterMode(0));
+      const y = computer.nextParameter(instruction.parameterMode(1));
+      const value = x === y ? 1 : 0;
+      const mode = instruction.parameterMode(2);
+      computer.write(value, mode);
+    },
+  },
 
-      const y = computer.nextParameter(
-          instruction.parameterMode(1),
-      );
-
-      computer.write(x === y ? 1 : 0);
+  [OP_CODE_RELATIVE_BASE]: {
+    execute({computer, instruction}) {
+      const value = computer.nextParameter(instruction.parameterMode(0));
+      computer.increaseRelativeBase(value);
     },
   },
 };
