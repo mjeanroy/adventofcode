@@ -26,29 +26,79 @@ const path = require('path');
 const {maxOf, permutations, readFile, toNumber} = require('../00/index');
 const {IntCodeComputer} = require('../00/intcode-computer');
 
-function run(memory, phaseSettings) {
-  let output = 0;
-
-  for (const phase of phaseSettings) {
-    const inputs = [phase];
-    const computer = new IntCodeComputer({memory, inputs});
-    output = computer.run([output]);
-  }
-
-  return output;
-}
-
 function part01(fileName) {
   const file = path.join(__dirname, fileName);
   return readFile(file).then((content) => {
     const memory = content.split(',').map((value) => toNumber(value));
     const combinations = permutations([0, 1, 2, 3, 4]);
     return maxOf(combinations, (phaseSettings) => {
-      return run(memory, phaseSettings);
+      let output = 0;
+
+      for (const phase of phaseSettings) {
+        const inputs = [phase, output];
+        const computer = new IntCodeComputer({memory, inputs});
+        while (!computer.halted) {
+          output = computer.run();
+        }
+      }
+
+      return output;
+    });
+  });
+}
+
+class Circuit {
+  constructor(memory, phaseSettings) {
+    this._index = 0;
+    this._amplifiers = phaseSettings.map((phase) => {
+      return new IntCodeComputer({memory, inputs: [phase]});
+    });
+  }
+
+  run() {
+    let output = 0;
+
+    while (!this._lastAmplifier().halted) {
+      output = this._nextAmplifier().run([output]);
+    }
+
+    return this._lastAmplifier().output;
+  }
+
+  _nextAmplifier() {
+    const amplifier = this._amplifiers[this._index];
+    this._move();
+    return amplifier;
+  }
+
+  _move() {
+    this._index++;
+    this._index = this._index % this._nbAmplifiers();
+  }
+
+  _nbAmplifiers() {
+    return this._amplifiers.length;
+  }
+
+  _lastAmplifier() {
+    return this._amplifiers[
+        this._nbAmplifiers() - 1
+    ];
+  }
+}
+
+function part02(fileName) {
+  const file = path.join(__dirname, fileName);
+  return readFile(file).then((content) => {
+    const memory = content.split(',').map((value) => toNumber(value));
+    const combinations = permutations([5, 6, 7, 8, 9]);
+    return maxOf(combinations, (phaseSettings) => {
+      return new Circuit(memory, phaseSettings).run();
     });
   });
 }
 
 module.exports = {
   part01,
+  part02,
 };

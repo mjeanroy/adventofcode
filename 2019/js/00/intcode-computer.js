@@ -49,8 +49,9 @@ class IntCodeInstruction {
 
 class IntCodeComputer {
   constructor({memory, inputs}) {
-    this.memory = memory;
+    this.memory = memory.slice();
     this.output = null;
+    this.halted = false;
 
     this._position = 0;
     this._inputs = inputs.slice();
@@ -60,6 +61,7 @@ class IntCodeComputer {
     this._inputs.push(...inputs);
 
     let instruction = this._nextInstruction();
+
     while (instruction.opcode !== OP_CODE_STOP) {
       const opcodeHandler = opcodes[instruction.opcode];
       if (!opcodeHandler) {
@@ -71,7 +73,16 @@ class IntCodeComputer {
         instruction,
       });
 
+      if (instruction.opcode === '04') {
+        // Send output to next
+        break;
+      }
+
       instruction = this._nextInstruction();
+    }
+
+    if (instruction.opcode === OP_CODE_STOP) {
+      this.halted = true;
     }
 
     return this.output;
@@ -240,11 +251,13 @@ function intcode(initialMemory, inputs = []) {
     inputs,
   });
 
-  const output = computer.run();
-  const memory = computer.memory;
+  let output = null;
+  while (!computer.halted) {
+    output = computer.run();
+  }
 
   return {
-    memory,
+    memory: computer.memory,
     output,
   };
 }
