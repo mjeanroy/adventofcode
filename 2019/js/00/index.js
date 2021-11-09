@@ -186,8 +186,28 @@ function permutations(array) {
   return outputs;
 }
 
+/**
+ * Prepend given input with given placeholder until output has given length.
+ *
+ * @param {string} value Given input.
+ * @param {number} length Required length.
+ * @param {string} placeholder Placeholder to use.
+ * @returns {string} Output.
+ */
+function leftPad(value, length, placeholder) {
+  let out = value;
+
+  while (out.length < length) {
+    out = placeholder + out;
+  }
+
+  return out;
+}
+
+
 module.exports = {
   intersect,
+  leftPad,
   maxOf,
   minOf,
   permutations,

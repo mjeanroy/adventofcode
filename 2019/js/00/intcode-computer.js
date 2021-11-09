@@ -22,18 +22,11 @@
  * THE SOFTWARE.
  */
 
+const {leftPad} = require('./index');
+
 const POSITION_MODE = '0';
 const OP_CODE_STOP = '99';
 const OP_CODE_SIZE = 2;
-
-function leftPad(value, length, placeholder) {
-  let out = value;
-  while (out.length < length) {
-    out = placeholder + out;
-  }
-
-  return out;
-}
 
 class IntCodeInstruction {
   constructor(instruction) {
