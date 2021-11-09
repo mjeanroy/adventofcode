@@ -26,16 +26,24 @@ const path = require('path');
 const {readFile, toNumber} = require('../00/index');
 const {IntCodeComputer} = require('../00/intcode-computer');
 
-function part01(fileName) {
+function run(fileName, inputs) {
   const file = path.join(__dirname, fileName);
   return readFile(file).then((content) => {
     const memory = content.trim().split(',').map((value) => toNumber(value));
-    const inputs = [1];
     const computer = new IntCodeComputer({memory, inputs});
     return computer.run();
   });
 }
 
+function part01(fileName) {
+  return run(fileName, [1]);
+}
+
+function part02(fileName) {
+  return run(fileName, [2]);
+}
+
 module.exports = {
   part01,
+  part02,
 };
