@@ -39,7 +39,7 @@ function readFile(file) {
         return;
       }
 
-      resolve(data);
+      resolve(data.trim());
     });
   });
 }
