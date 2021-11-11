@@ -135,23 +135,139 @@ function computeNumberOfVisibleAsteroids(asteroid, asteroids) {
   return visibleAsteroids.size;
 }
 
+function findMonitoringStation(asteroids) {
+  let maxVisible = Number.MIN_SAFE_INTEGER;
+  let monitoringStation = asteroids[0];
+
+  for (const asteroid of asteroids) {
+    const nbVisible = computeNumberOfVisibleAsteroids(asteroid, asteroids);
+    if (nbVisible > maxVisible) {
+      monitoringStation = asteroid;
+      maxVisible = nbVisible;
+    }
+  }
+
+  return {
+    monitoringStation,
+    maxVisible,
+  };
+}
+
+/**
+ * Compute angle of asteroid with monitoring station in degree, from 0° to 360°.
+ *
+ * @param {{x: number, y: number}} monitoringStation The monitoring station.
+ * @param {{x: number, y: number}} asteroid The asteroid.
+ * @returns {number} The angle.
+ */
+function computeAngle(monitoringStation, asteroid) {
+  const relativePosition = computeRelativeCoordinates(monitoringStation, asteroid);
+  const angle = Math.atan2(relativePosition.y, relativePosition.x);
+  const normalizedAngle = angle < 0 ? angle + 2 * Math.PI : angle;
+  return normalizedAngle * 180 / Math.PI;
+}
+
+/**
+ * Compute angle between each asteroids in the map with the monitoring station and index
+ * them in a map where:
+ * - The key is the angle value.
+ * - The value is the asteroids, sorted by the distance between the asteroid and the monitoring station (closer first).
+ *
+ * @param {{x: number, y: number}} monitoringStation The monitoring station.
+ * @param {Array<{x: number, y: number}>} asteroids All asteroids.
+ * @returns {Map<number, Array<{x: number, y: number}>>} The asteroids indexed by the angle value with the monitoring station.
+ */
+function mapAsteroidsClockwise(monitoringStation, asteroids) {
+  const mapOfAsteroids = new Map();
+
+  for (const asteroid of asteroids) {
+    if (asteroid === monitoringStation) {
+      continue;
+    }
+
+    const angle = computeAngle(monitoringStation, asteroid);
+    if (!mapOfAsteroids.has(angle)) {
+      mapOfAsteroids.set(angle, []);
+    }
+
+    mapOfAsteroids.get(angle).push(asteroid);
+  }
+
+  // Sort each entries in the map, so we have the asteroid first
+  for (const [, asteroidsInAngle] of mapOfAsteroids.entries()) {
+    asteroidsInAngle.sort((a1, a2) => {
+      const dx = a1.x - a2.x;
+      return dx === 0 ? (a1.y - a2.y) : dx;
+    });
+  }
+
+  return mapOfAsteroids;
+}
+
+/**
+ * Rotate the angle value by 90°.
+ *
+ * @param {number} angle The angle.
+ * @returns {number} The rotated value.
+ */
+function rotateAngle(angle) {
+  return (angle + 90) % 360;
+}
+
+/**
+ * Vaporize all asteroids and returns list of vaporized asteroids in the order each asteroid
+ * has been vaporized.
+ *
+ * @param {Map<number, Array<{x: number, y: number}>>} mapOfAsteroids The asteroids indexed by the angle value with the monitoring station.
+ * @returns {Array<{x: number, y: number}>} Vaporized asteroids.
+ */
+function vaporizeAsteroids(mapOfAsteroids) {
+  const vaporizedAsteroids = [];
+  const angles = [...mapOfAsteroids.keys()].sort((a1, a2) => {
+    return rotateAngle(a1) - rotateAngle(a2);
+  });
+
+  while (mapOfAsteroids.size > 0) {
+    // Run clockwise
+    for (const angle of angles) {
+      const asteroids = mapOfAsteroids.get(angle);
+      if (asteroids) {
+        vaporizedAsteroids.push(asteroids.shift());
+        if (asteroids.length === 0) {
+          mapOfAsteroids.delete(angle);
+        }
+      }
+    }
+  }
+
+  return vaporizedAsteroids;
+}
+
 function part01(fileName) {
   const file = path.join(__dirname, fileName);
   return readLines(file).then((map) => {
     const asteroids = detectAsteroids(map);
-
-    let maxVisible = Number.MIN_SAFE_INTEGER;
-    for (const asteroid of asteroids) {
-      const nbVisible = computeNumberOfVisibleAsteroids(asteroid, asteroids);
-      if (nbVisible > maxVisible) {
-        maxVisible = nbVisible;
-      }
-    }
-
+    const {maxVisible} = findMonitoringStation(asteroids);
     return maxVisible;
+  });
+}
+
+function part02(fileName, winnerIdx) {
+  const file = path.join(__dirname, fileName);
+  return readLines(file).then((map) => {
+    const asteroids = detectAsteroids(map);
+    const {monitoringStation} = findMonitoringStation(asteroids);
+
+    // For each asteroid, compute the angle between the asteroid and the monitoring station
+    // Then, we will just loop other each entries, sorted by angle
+    const mapOfAsteroids = mapAsteroidsClockwise(monitoringStation, asteroids);
+    const vaporizedAsteroids = vaporizeAsteroids(mapOfAsteroids);
+    const winner = vaporizedAsteroids[winnerIdx - 1];
+    return winner.x * 100 + winner.y;
   });
 }
 
 module.exports = {
   part01,
+  part02,
 };
