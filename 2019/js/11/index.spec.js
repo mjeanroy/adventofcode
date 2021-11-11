@@ -22,12 +22,25 @@
  * THE SOFTWARE.
  */
 
-const {part01} = require('./index');
+const {part01, part02} = require('./index');
 
 describe('day 11', () => {
   describe('part 01', () => {
     it('should compute input', async () => {
       expect(await part01('input.txt')).toBe(1709);
+    });
+  });
+
+  describe('part 02', () => {
+    it('should compute input', async () => {
+      expect(await part02('input.txt')).toEqual([
+        ' ###   ##  #  # #### #  #  ##    ## #  #   ',
+        ' #  # #  # #  # #    #  # #  #    # #  #   ',
+        ' #  # #    #  # ###  #### #       # ####   ',
+        ' ###  # ## #  # #    #  # #       # #  #   ',
+        ' #    #  # #  # #    #  # #  # #  # #  #   ',
+        ' #     ###  ##  #### #  #  ##   ##  #  #   ',
+      ]);
     });
   });
 });
