@@ -23,25 +23,9 @@
  */
 
 const path = require('path');
-const {readLines} = require('../00/index');
+const {gcd, readLines} = require('../00/index');
 
 const ASTEROID = '#';
-
-// https://stackoverflow.com/questions/17445231/js-how-to-find-the-greatest-common-divisor
-/**
- * Compute the greatest common divisor between two values.
- *
- * @param {number} x First number.
- * @param {number} y Second number.
- * @returns {number} The greatest common divisor.
- */
-function gcd(x, y) {
-  if (!y) {
-    return Math.abs(x);
-  }
-
-  return gcd(y, x % y);
-}
 
 /**
  * Serialize coordinates as a raw string.

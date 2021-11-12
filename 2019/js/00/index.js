@@ -187,6 +187,21 @@ function permutations(array) {
 }
 
 /**
+ * Find the greatest common divisor between two numbers.
+ * @param {number} a First number.
+ * @param {number} b Second number.
+ * @returns {number} The Greatest Common Divisor.
+ * @see https://stackoverflow.com/questions/17445231/js-how-to-find-the-greatest-common-divisor
+ */
+function gcd(a, b) {
+  if (b === 0) {
+    return Math.abs(a);
+  }
+
+  return gcd(b, a % b);
+}
+
+/**
  * Prepend given input with given placeholder until output has given length.
  *
  * @param {string} value Given input.
@@ -206,6 +221,7 @@ function leftPad(value, length, placeholder) {
 
 
 module.exports = {
+  gcd,
   intersect,
   leftPad,
   maxOf,

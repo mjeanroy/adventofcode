@@ -23,13 +23,33 @@
  */
 
 const path = require('path');
-const {readLines, sumOf, toNumber} = require('../00/index');
+const {gcd, readLines, sumOf, toNumber} = require('../00/index');
+
+function _lcm(a, b) {
+  if (b === 0) {
+    return 0;
+  }
+
+  return (a * b) / gcd(a, b);
+}
+
+function lcm(...args) {
+  return args.reduce((a, b) => _lcm(a, b));
+}
 
 class Coordinates {
   constructor(x, y, z) {
     this.x = x;
     this.y = y;
     this.z = z;
+  }
+
+  get(axe) {
+    if (axe !== 'x' && axe !== 'y' && axe !== 'z') {
+      throw new Error(`Unknown axe: ${axe}`);
+    }
+
+    return this[axe];
   }
 
   move(x, y, z) {
@@ -42,6 +62,10 @@ class Coordinates {
     return Math.abs(this.x) + Math.abs(this.y) + Math.abs(this.z);
   }
 
+  clone() {
+    return new Coordinates(this.x, this.y, this.z);
+  }
+
   toString() {
     return `<x=${this.x}, y=${this.y}, z=${this.z}>`;
   }
@@ -51,6 +75,12 @@ class Moon {
   constructor(position, velocity) {
     this.position = position;
     this.velocity = velocity;
+    this._initialPosition = position.clone();
+  }
+
+  reset() {
+    this.position = this._initialPosition.clone();
+    this.velocity = new Coordinates(0, 0, 0);
   }
 
   applyGravity(x, y, z) {
@@ -77,6 +107,13 @@ class Moon {
     return this.potentialEnergy() * this.kineticEnergy();
   }
 
+  isAtInitialPosition(axe) {
+    return (
+      this._initialPosition.get(axe) === this.position.get(axe) &&
+      this.velocity.get(axe) === 0
+    );
+  }
+
   toString() {
     return `pos=${this.position}, vel=${this.velocity}`;
   }
@@ -87,6 +124,16 @@ class Universe {
     this._moons = moons;
   }
 
+  countCycle() {
+    const cycles = {x: 0, y: 0, z: 0};
+    for (const axe of Object.keys(cycles)) {
+      cycles[axe] = this._countCycle(axe);
+      this._reset();
+    }
+
+    return lcm(...Object.values(cycles));
+  }
+
   move() {
     this._applyGravity();
     this._applyVelocity();
@@ -94,6 +141,32 @@ class Universe {
 
   totalEnergy() {
     return sumOf(this._moons, (moon) => moon.totalEnergy());
+  }
+
+  _reset() {
+    this._moons.forEach((moon) => (
+      moon.reset()
+    ));
+  }
+
+  _countCycle(axe) {
+    this._applyGravity();
+    this._applyVelocity();
+
+    let times = 1;
+    while (!this._atInitialPosition(axe)) {
+      this._applyGravity();
+      this._applyVelocity();
+      times++;
+    }
+
+    return times;
+  }
+
+  _atInitialPosition(axe) {
+    return this._moons.every((moon) => (
+      moon.isAtInitialPosition(axe)
+    ));
   }
 
   _applyGravity() {
@@ -160,6 +233,14 @@ function part01(fileName, timeSteps = 10) {
   });
 }
 
+function part02(fileName) {
+  const file = path.join(__dirname, fileName);
+  return readLines(file).then((lines) => {
+    return createUniverse(lines).countCycle();
+  });
+}
+
 module.exports = {
   part01,
+  part02,
 };
