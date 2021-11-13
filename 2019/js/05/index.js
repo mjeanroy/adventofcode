@@ -23,8 +23,8 @@
  */
 
 const path = require('path');
-const {readFile, toNumber} = require('../00/index');
-const {intcode} = require('../00/intcode-computer');
+const {readFile} = require('../00/index');
+const {IntCodeComputer, readMemory} = require('../00/intcode-computer');
 
 function part01(fileName) {
   return execute(fileName, 1);
@@ -36,8 +36,10 @@ function part02(fileName, input = 5) {
 
 function execute(fileName, input) {
   return readFile(path.join(__dirname, fileName)).then((rawFile) => {
-    const memory = rawFile.split(',').map((value) => toNumber(value));
-    return intcode(memory, [input]).output;
+    const memory = readMemory(rawFile);
+    const inputs = [input];
+    const computer = new IntCodeComputer({memory, inputs});
+    return computer.run();
   });
 }
 

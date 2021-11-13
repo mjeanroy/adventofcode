@@ -23,13 +23,13 @@
  */
 
 const path = require('path');
-const {maxOf, permutations, readFile, toNumber} = require('../00/index');
-const {IntCodeComputer} = require('../00/intcode-computer');
+const {maxOf, permutations, readFile} = require('../00/index');
+const {IntCodeComputer, readMemory} = require('../00/intcode-computer');
 
 function part01(fileName) {
   const file = path.join(__dirname, fileName);
   return readFile(file).then((content) => {
-    const memory = content.split(',').map((value) => toNumber(value));
+    const memory = readMemory(content);
     const combinations = permutations([0, 1, 2, 3, 4]);
     return maxOf(combinations, (phaseSettings) => {
       let output = 0;
@@ -88,7 +88,7 @@ class Circuit {
 function part02(fileName) {
   const file = path.join(__dirname, fileName);
   return readFile(file).then((content) => {
-    const memory = content.split(',').map((value) => toNumber(value));
+    const memory = readMemory(content);
     const combinations = permutations([5, 6, 7, 8, 9]);
     return maxOf(combinations, (phaseSettings) => {
       return new Circuit(memory, phaseSettings).run();

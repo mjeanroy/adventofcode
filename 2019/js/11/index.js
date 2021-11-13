@@ -24,7 +24,7 @@
 
 const path = require('path');
 const {readFile, toNumber} = require('../00/index');
-const {IntCodeComputer} = require('../00/intcode-computer');
+const {IntCodeComputer, readMemory} = require('../00/intcode-computer');
 
 const UP = 'up';
 const DOWN = 'down';
@@ -118,7 +118,7 @@ class Robot {
 }
 
 function run(content, initialColor = BLACK) {
-  const memory = content.split(',').map((value) => toNumber(value));
+  const memory = readMemory(content);
   const inputs = [];
   const computer = new IntCodeComputer({memory, inputs});
   const robot = new Robot();

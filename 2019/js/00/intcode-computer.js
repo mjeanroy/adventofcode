@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-const {leftPad} = require('./index');
+const {leftPad, toNumber} = require('./index');
 
 const POSITION_MODE = '0';
 const IMMEDIATE_MODE = '1';
@@ -374,7 +374,18 @@ function intcode(initialMemory, initialInputs = []) {
   };
 }
 
+/**
+ * Read and create memory from given raw input.
+ *
+ * @param {string} inputs Raw inputs.
+ * @returns {number[]} The memory.
+ */
+function readMemory(inputs) {
+  return inputs.trim().split(',').map((value) => toNumber(value.trim()));
+}
+
 module.exports = {
   intcode,
   IntCodeComputer,
+  readMemory,
 };

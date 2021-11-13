@@ -23,11 +23,11 @@
  */
 
 const {readFile, toNumber} = require('../00/index');
-const {intcode} = require('../00/intcode-computer');
+const {intcode, readMemory} = require('../00/intcode-computer');
 
 function part1(file) {
   return readFile(file).then((data) => {
-    const memory = data.trim().split(',').map((x) => toNumber(x));
+    const memory = readMemory(data);
 
     // Before running the program, replace position 1 with the value 12 and replace position 2 with the value 2
     memory[1] = 12;
@@ -39,7 +39,7 @@ function part1(file) {
 
 function part2(file) {
   return readFile(file).then((data) => {
-    const values = data.trim().split(',').map((x) => toNumber(x));
+    const values = readMemory(data);
 
     for (let noun = 0; noun <= 99; ++noun) {
       for (let verb = 0; verb <= 99; ++verb) {

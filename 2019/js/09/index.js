@@ -23,13 +23,13 @@
  */
 
 const path = require('path');
-const {readFile, toNumber} = require('../00/index');
-const {IntCodeComputer} = require('../00/intcode-computer');
+const {readFile} = require('../00/index');
+const {IntCodeComputer, readMemory} = require('../00/intcode-computer');
 
 function run(fileName, inputs) {
   const file = path.join(__dirname, fileName);
   return readFile(file).then((content) => {
-    const memory = content.trim().split(',').map((value) => toNumber(value));
+    const memory = readMemory(content);
     const computer = new IntCodeComputer({memory, inputs});
     return computer.run();
   });
