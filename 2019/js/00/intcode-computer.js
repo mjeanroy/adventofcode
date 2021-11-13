@@ -60,7 +60,7 @@ class IntCodeComputer {
     this.halted = false;
 
     this._position = 0;
-    this._inputs = inputs.slice();
+    this._inputs = (inputs ?? []).slice();
     this._relativeBase = 0;
   }
 

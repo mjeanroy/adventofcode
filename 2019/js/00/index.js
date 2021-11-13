@@ -68,6 +68,24 @@ function toNumber(value) {
 }
 
 /**
+ * Count number of input satisfying a given predicate.
+ *
+ * @param {Array<*>} inputs Given inputs.
+ * @param {function} predicate The predicate.
+ * @returns {number} The number of input satisfying predicate.
+ */
+function count(inputs, predicate) {
+  let c = 0;
+  for (const input of inputs) {
+    if (predicate(input)) {
+      c++;
+    }
+  }
+
+  return c;
+}
+
+/**
  * Compute a sum by accumulating all intermediate values returns by the `compute``
  * function.
  *
@@ -221,6 +239,7 @@ function leftPad(value, length, placeholder) {
 
 
 module.exports = {
+  count,
   gcd,
   intersect,
   leftPad,
