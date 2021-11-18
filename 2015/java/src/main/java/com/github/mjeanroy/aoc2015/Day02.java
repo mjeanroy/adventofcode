@@ -24,36 +24,57 @@
 
 package com.github.mjeanroy.aoc2015;
 
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-final class AocUtils {
-	private AocUtils() {
+class Day02 {
+	private Day02() {
 	}
 
-	static String readFile(String file) {
-		URL url = AocUtils.class.getResource(file);
-		if (url == null) {
-			throw new RuntimeException("File not found: " + file);
+	static long part01(String file) {
+		List<String> lines = AocUtils.readLines("/day02/" + file);
+
+		long sum = 0;
+
+		for (String line : lines) {
+			String[] dimensions = line.split("x", 3);
+			if (dimensions.length != 3) {
+				throw new RuntimeException("Invalid dimensions: " + line);
+			}
+
+			long length = AocUtils.toLong(dimensions[0]);
+			long width = AocUtils.toLong(dimensions[1]);
+			long height = AocUtils.toLong(dimensions[2]);
+			Box box = new Box(length, width, height);
+
+			sum += box.area() + box.smallestSideArea();
 		}
 
-		try {
-			Path path = Path.of(url.toURI());
-			return Files.readString(path).trim();
-		} catch (Exception ex) {
-			throw new RuntimeException(ex);
+		return sum;
+	}
+
+	private static final class Box {
+		private final long length;
+		private final long width;
+		private final long height;
+
+		private Box(long length, long width, long height) {
+			this.length = length;
+			this.width = width;
+			this.height = height;
 		}
-	}
 
-	static List<String> readLines(String file) {
-		return Arrays.stream(readFile(file).split("\n")).collect(Collectors.toList());
-	}
+		long area() {
+			return (2 * length * width) + (2 * width * height) + (2 * height * length);
+		}
 
-	static long toLong(String input) {
-		return Long.parseLong(input.trim());
+		long smallestSideArea() {
+			List<Long> sizes = Stream.of(length, width, height)
+					.sorted()
+					.collect(Collectors.toList());
+
+			return sizes.get(0) * sizes.get(1);
+		}
 	}
 }
