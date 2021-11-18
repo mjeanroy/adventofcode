@@ -44,4 +44,28 @@ class Day01 {
 
 		return floor;
 	}
+
+	static long part02(String fileName) {
+		String input = AocUtils.readFile("/day01/" + fileName);
+
+		int i = 1;
+		long floor = 0;
+		for (char c : input.toCharArray()) {
+			if (c == '(') {
+				floor++;
+			} else if (c == ')') {
+				floor--;
+			} else {
+				throw new RuntimeException("Unknown operation: " + c);
+			}
+
+			if (floor == -1) {
+				return i;
+			}
+
+			i++;
+		}
+
+		return -1;
+	}
 }
