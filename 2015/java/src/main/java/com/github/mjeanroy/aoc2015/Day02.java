@@ -34,28 +34,18 @@ class Day02 {
 
 	static long part01(String file) {
 		List<String> lines = AocUtils.readLines("/day02/" + file);
-
-		long sum = 0;
-
-		for (String line : lines) {
-			Box box = parseBox(line);
-			sum += box.area() + box.smallestSideArea();
-		}
-
-		return sum;
+		return lines.stream()
+				.map(Day02::parseBox)
+				.map(box -> box.area() + box.smallestSideArea())
+				.reduce(0L, Long::sum);
 	}
 
 	static long part02(String file) {
 		List<String> lines = AocUtils.readLines("/day02/" + file);
-
-		long sum = 0;
-
-		for (String line : lines) {
-			Box box = parseBox(line);
-			sum += box.volume() + box.smallestSidePerimeter();
-		}
-
-		return sum;
+		return lines.stream()
+				.map(Day02::parseBox)
+				.map(box -> box.volume() + box.smallestSidePerimeter())
+				.reduce(0L, Long::sum);
 	}
 
 	private static Box parseBox(String input) {

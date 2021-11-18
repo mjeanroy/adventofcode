@@ -33,13 +33,7 @@ class Day01 {
 
 		long floor = 0;
 		for (char c : input.toCharArray()) {
-			if (c == '(') {
-				floor++;
-			} else if (c == ')') {
-				floor--;
-			} else {
-				throw new RuntimeException("Unknown operation: " + c);
-			}
+			floor = move(floor, c);
 		}
 
 		return floor;
@@ -51,13 +45,7 @@ class Day01 {
 		int i = 1;
 		long floor = 0;
 		for (char c : input.toCharArray()) {
-			if (c == '(') {
-				floor++;
-			} else if (c == ')') {
-				floor--;
-			} else {
-				throw new RuntimeException("Unknown operation: " + c);
-			}
+			floor = move(floor, c);
 
 			if (floor == -1) {
 				return i;
@@ -67,5 +55,15 @@ class Day01 {
 		}
 
 		return -1;
+	}
+
+	private static long move(long floor, char c) {
+		if (c == '(') {
+			return floor + 1;
+		} else if (c == ')') {
+			return floor - 1;
+		}
+
+		throw new RuntimeException("Unknown operation: " + c);
 	}
 }
