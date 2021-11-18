@@ -38,20 +38,36 @@ class Day02 {
 		long sum = 0;
 
 		for (String line : lines) {
-			String[] dimensions = line.split("x", 3);
-			if (dimensions.length != 3) {
-				throw new RuntimeException("Invalid dimensions: " + line);
-			}
-
-			long length = AocUtils.toLong(dimensions[0]);
-			long width = AocUtils.toLong(dimensions[1]);
-			long height = AocUtils.toLong(dimensions[2]);
-			Box box = new Box(length, width, height);
-
+			Box box = parseBox(line);
 			sum += box.area() + box.smallestSideArea();
 		}
 
 		return sum;
+	}
+
+	static long part02(String file) {
+		List<String> lines = AocUtils.readLines("/day02/" + file);
+
+		long sum = 0;
+
+		for (String line : lines) {
+			Box box = parseBox(line);
+			sum += box.volume() + box.smallestSidePerimeter();
+		}
+
+		return sum;
+	}
+
+	private static Box parseBox(String input) {
+		String[] dimensions = input.split("x", 3);
+		if (dimensions.length != 3) {
+			throw new RuntimeException("Invalid dimensions: " + input);
+		}
+
+		long length = AocUtils.toLong(dimensions[0]);
+		long width = AocUtils.toLong(dimensions[1]);
+		long height = AocUtils.toLong(dimensions[2]);
+		return new Box(length, width, height);
 	}
 
 	private static final class Box {
@@ -70,11 +86,21 @@ class Day02 {
 		}
 
 		long smallestSideArea() {
-			List<Long> sizes = Stream.of(length, width, height)
-					.sorted()
-					.collect(Collectors.toList());
-
+			List<Long> sizes = sizes();
 			return sizes.get(0) * sizes.get(1);
+		}
+
+		long smallestSidePerimeter() {
+			List<Long> sizes = sizes();
+			return sizes.get(0) * 2 + sizes.get(1) * 2;
+		}
+
+		long volume() {
+			return length * width * height;
+		}
+
+		private List<Long> sizes() {
+			return Stream.of(length, width, height).sorted().collect(Collectors.toList());
 		}
 	}
 }
