@@ -70,17 +70,7 @@ class Day02 {
 		return new Box(length, width, height);
 	}
 
-	private static final class Box {
-		private final long length;
-		private final long width;
-		private final long height;
-
-		private Box(long length, long width, long height) {
-			this.length = length;
-			this.width = width;
-			this.height = height;
-		}
-
+	private record Box(long length, long width, long height) {
 		long area() {
 			return (2 * length * width) + (2 * width * height) + (2 * height * length);
 		}

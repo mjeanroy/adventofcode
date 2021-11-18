@@ -32,29 +32,61 @@ class Day03 {
 	}
 
 	static long part01(String fileName) {
-		Set<Coordinates> visitedLocations = new HashSet<>();
-
-		Coordinates position = new Coordinates(0, 0);
-		visitedLocations.add(position);
-
 		String content = AocUtils.readFile("/day03/" + fileName);
-		for (char c : content.toCharArray()) {
-			if (c == '^') {
-				position = position.moveUp();
-			} else if (c == 'v') {
-				position = position.moveDown();
-			} else if (c == '>') {
-				position = position.moveRight();
-			} else if (c == '<') {
-				position = position.moveLeft();
-			} else {
-				throw new RuntimeException("Unknown operation: " + c);
-			}
 
-			visitedLocations.add(position);
+		Coordinates santa = new Coordinates(0, 0);
+
+		Set<Coordinates> visitedLocations = new HashSet<>();
+		visitedLocations.add(santa);
+
+		for (char c : content.toCharArray()) {
+			santa = move(santa, c);
+			visitedLocations.add(santa);
 		}
 
 		return visitedLocations.size();
+	}
+
+	static long part02(String fileName) {
+		Coordinates santa = new Coordinates(0, 0);
+		Coordinates robot = new Coordinates(0, 0);
+
+		Set<Coordinates> visitedLocations = new HashSet<>();
+		visitedLocations.add(santa);
+		visitedLocations.add(robot);
+
+		String content = AocUtils.readFile("/day03/" + fileName);
+
+		int i = 0;
+		for (char c : content.toCharArray()) {
+			if (i % 2 == 0) {
+				santa = move(santa, c);
+			} else {
+				robot = move(robot, c);
+			}
+
+			visitedLocations.add(santa);
+			visitedLocations.add(robot);
+			i++;
+		}
+
+		return visitedLocations.size();
+	}
+
+	private static Coordinates move(Coordinates position, char c) {
+		if (c == '^') {
+			position = position.moveUp();
+		} else if (c == 'v') {
+			position = position.moveDown();
+		} else if (c == '>') {
+			position = position.moveRight();
+		} else if (c == '<') {
+			position = position.moveLeft();
+		} else {
+			throw new RuntimeException("Unknown operation: " + c);
+		}
+
+		return position;
 	}
 
 	private record Coordinates(int x, int y) {
