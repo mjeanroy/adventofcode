@@ -10,31 +10,38 @@
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 
-const {part01, part02} = require('./index');
-jest.setTimeout(60000);
+package com.github.mjeanroy.aoc2015;
 
-describe('day 13', () => {
-  describe('part 01', () => {
-    it('should compute input', async () => {
-      expect(await part01('input.txt')).toBe(301);
-    });
-  });
+class Day01 {
+	private Day01() {
+	}
 
-  describe('part 02', () => {
-    it('should compute input', async () => {
-      expect(await part02('input.txt')).toBe(301);
-    });
-  });
-});
+	static long part01(String fileName) {
+		String input = AocUtils.readFile("/day01/" + fileName);
+
+		long floor = 0;
+		for (char c : input.toCharArray()) {
+			if (c == '(') {
+				floor++;
+			} else if (c == ')') {
+				floor--;
+			} else {
+				throw new RuntimeException("Unknown operation: " + c);
+			}
+		}
+
+		return floor;
+	}
+}

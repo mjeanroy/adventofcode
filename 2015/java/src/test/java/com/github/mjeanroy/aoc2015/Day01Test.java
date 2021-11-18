@@ -10,31 +10,32 @@
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 
-const {part01, part02} = require('./index');
-jest.setTimeout(60000);
+package com.github.mjeanroy.aoc2015;
 
-describe('day 13', () => {
-  describe('part 01', () => {
-    it('should compute input', async () => {
-      expect(await part01('input.txt')).toBe(301);
-    });
-  });
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 
-  describe('part 02', () => {
-    it('should compute input', async () => {
-      expect(await part02('input.txt')).toBe(301);
-    });
-  });
-});
+import static org.assertj.core.api.Assertions.assertThat;
+
+class Day01Test {
+
+	@Nested
+	class Part01 {
+		@Test
+		void it_should_compute_input() {
+			assertThat(Day01.part01("input.txt")).isEqualTo(232L);
+		}
+	}
+}

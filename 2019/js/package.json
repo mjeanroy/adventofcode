@@ -11,6 +11,7 @@
   "author": "Mickael Jeanroy <mickael.jeanroy@gmail.com>",
   "license": "MIT",
   "devDependencies": {
+    "colors": "^1.4.0",
     "eslint": "8.2.0",
     "eslint-config-google": "^0.14.0",
     "jest": "27.3.1"

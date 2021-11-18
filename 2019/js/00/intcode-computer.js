@@ -182,6 +182,10 @@ class IntCodeComputer {
     this._position = position;
   }
 
+  setInputs(inputs = []) {
+    this._inputs = inputs.slice();
+  }
+
   /**
    * Add new input values.
    *
