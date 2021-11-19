@@ -29,27 +29,13 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class Day04Test {
+class Day05Test {
 
 	@Nested
 	class Part01 {
 		@Test
-		void it_should_compute_sample() {
-			assertThat(Day04.part01("abcdef")).isEqualTo(609043L);
-			assertThat(Day04.part01("pqrstuv")).isEqualTo(1048970L);
-		}
-
-		@Test
 		void it_should_compute_input() {
-			assertThat(Day04.part01("yzbqklnj")).isEqualTo(282749L);
-		}
-	}
-
-	@Nested
-	class Part02 {
-		@Test
-		void it_should_compute_input() {
-			assertThat(Day04.part02("yzbqklnj")).isEqualTo(9962624L);
+			assertThat(Day05.part01("input.txt")).isEqualTo(236L);
 		}
 	}
 }

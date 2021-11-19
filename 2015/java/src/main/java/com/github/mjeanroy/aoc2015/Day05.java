@@ -24,32 +24,60 @@
 
 package com.github.mjeanroy.aoc2015;
 
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import java.util.List;
+import java.util.Set;
 
-import static org.assertj.core.api.Assertions.assertThat;
+class Day05 {
+	private static final Set<Character> VOWELS = Set.of('a', 'e', 'i', 'o', 'u');
 
-public class Day04Test {
-
-	@Nested
-	class Part01 {
-		@Test
-		void it_should_compute_sample() {
-			assertThat(Day04.part01("abcdef")).isEqualTo(609043L);
-			assertThat(Day04.part01("pqrstuv")).isEqualTo(1048970L);
-		}
-
-		@Test
-		void it_should_compute_input() {
-			assertThat(Day04.part01("yzbqklnj")).isEqualTo(282749L);
-		}
+	private Day05() {
 	}
 
-	@Nested
-	class Part02 {
-		@Test
-		void it_should_compute_input() {
-			assertThat(Day04.part02("yzbqklnj")).isEqualTo(9962624L);
+	static long part01(String fileName) {
+		List<String> lines = AocUtils.readLines("/day05/" + fileName);
+		return lines.stream().filter(Day05::isNiceString).count();
+	}
+
+	private static boolean isNiceString(String line) {
+		if (line.length() < 2) {
+			return false;
 		}
+
+		Set<String> disallowedSubstring = Set.of(
+				"ab",
+				"cd",
+				"pq",
+				"xy"
+		);
+
+		char[] input = line.toCharArray();
+		char previous = input[0];
+		int nbVowel = isVowel(previous) ? 1 : 0;
+		boolean inARow = false;
+
+		for (int i = 1; i < input.length; ++i) {
+			char c = input[i];
+
+			String substring = String.valueOf(previous) + c;
+			if (disallowedSubstring.contains(substring)) {
+				return false;
+			}
+
+			if (c == previous) {
+				inARow = true;
+			}
+
+			if (isVowel(c)) {
+				nbVowel++;
+			}
+
+			previous = c;
+		}
+
+		return nbVowel >= 3 && inARow;
+	}
+
+	private static boolean isVowel(char c) {
+		return VOWELS.contains(c);
 	}
 }
