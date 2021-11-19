@@ -32,11 +32,19 @@ final class Day04 {
 	}
 
 	static long part01(String input) {
+		return findMd5Number(input, 5);
+	}
+
+	static long part02(String input) {
+		return findMd5Number(input, 6);
+	}
+
+	private static long findMd5Number(String input, int nbZeroes) {
 		long i = 0;
 
 		while (true) {
 			String md5 = toMd5(input + i);
-			if (checkMd5Hash(md5)) {
+			if (checkMd5Hash(md5, nbZeroes)) {
 				return i;
 			}
 
@@ -44,9 +52,9 @@ final class Day04 {
 		}
 	}
 
-	private static boolean checkMd5Hash(String hash) {
+	private static boolean checkMd5Hash(String hash, int nbZeroes) {
 		char[] chars = hash.toCharArray();
-		for (int i = 0; i < 5; ++i) {
+		for (int i = 0; i < nbZeroes; ++i) {
 			if (chars[i] != '0') {
 				return false;
 			}
@@ -62,8 +70,8 @@ final class Day04 {
 			byte[] digest = md.digest();
 
 			StringBuilder sb = new StringBuilder();
-			for (int i = 0; i < digest.length; ++i) {
-				sb.append(Integer.toHexString((digest[i] & 0xFF) | 0x100).substring(1,3));
+			for (byte b : digest) {
+				sb.append(Integer.toHexString((b & 0xFF) | 0x100), 1, 3);
 			}
 
 			return sb.toString();

@@ -20,4 +20,12 @@ public class Day04Test {
 			assertThat(Day04.part01("yzbqklnj")).isEqualTo(282749L);
 		}
 	}
+
+	@Nested
+	class Part02 {
+		@Test
+		void it_should_compute_input() {
+			assertThat(Day04.part02("yzbqklnj")).isEqualTo(9962624L);
+		}
+	}
 }
