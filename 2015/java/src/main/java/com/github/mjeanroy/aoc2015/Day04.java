@@ -24,46 +24,51 @@
 
 package com.github.mjeanroy.aoc2015;
 
-final class Day01 {
-	private Day01() {
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+
+final class Day04 {
+	private Day04() {
 	}
 
-	static long part01(String fileName) {
-		String input = AocUtils.readFile("/day01/" + fileName);
+	static long part01(String input) {
+		long i = 0;
 
-		long floor = 0;
-		for (char c : input.toCharArray()) {
-			floor = move(floor, c);
-		}
-
-		return floor;
-	}
-
-	static long part02(String fileName) {
-		String input = AocUtils.readFile("/day01/" + fileName);
-
-		int i = 1;
-		long floor = 0;
-		for (char c : input.toCharArray()) {
-			floor = move(floor, c);
-
-			if (floor == -1) {
+		while (true) {
+			String md5 = toMd5(input + i);
+			if (checkMd5Hash(md5)) {
 				return i;
 			}
 
 			i++;
 		}
-
-		return -1;
 	}
 
-	private static long move(long floor, char c) {
-		if (c == '(') {
-			return floor + 1;
-		} else if (c == ')') {
-			return floor - 1;
+	private static boolean checkMd5Hash(String hash) {
+		char[] chars = hash.toCharArray();
+		for (int i = 0; i < 5; ++i) {
+			if (chars[i] != '0') {
+				return false;
+			}
 		}
 
-		throw new RuntimeException("Unknown operation: " + c);
+		return true;
+	}
+
+	private static String toMd5(String input) {
+		try {
+			MessageDigest md = MessageDigest.getInstance("MD5");
+			md.update(input.getBytes(StandardCharsets.UTF_8));
+			byte[] digest = md.digest();
+
+			StringBuilder sb = new StringBuilder();
+			for (int i = 0; i < digest.length; ++i) {
+				sb.append(Integer.toHexString((digest[i] & 0xFF) | 0x100).substring(1,3));
+			}
+
+			return sb.toString();
+		} catch (Exception ex) {
+			throw new RuntimeException(ex);
+		}
 	}
 }

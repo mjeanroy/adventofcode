@@ -27,7 +27,7 @@ package com.github.mjeanroy.aoc2015;
 import java.util.HashSet;
 import java.util.Set;
 
-class Day03 {
+final class Day03 {
 	private Day03() {
 	}
 
