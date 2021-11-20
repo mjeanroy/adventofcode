@@ -56,4 +56,12 @@ final class AocUtils {
 	static long toLong(String input) {
 		return Long.parseLong(input.trim());
 	}
+
+	static <T> T lastElement(List<T> elements) {
+		if (elements.isEmpty()) {
+			throw new RuntimeException("Cannot get last element of empty list");
+		}
+
+		return elements.get(elements.size() - 1);
+	}
 }

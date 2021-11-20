@@ -24,24 +24,116 @@
 
 package com.github.mjeanroy.aoc2015;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 
 class Day05 {
-	private static final Set<Character> VOWELS = Set.of('a', 'e', 'i', 'o', 'u');
 
 	private Day05() {
 	}
 
 	static long part01(String fileName) {
-		List<String> lines = AocUtils.readLines("/day05/" + fileName);
-		return lines.stream().filter(Day05::isNiceString).count();
+		return countNiceStrings(fileName, Day05::isNiceStringPart1);
 	}
 
-	private static boolean isNiceString(String line) {
+	static long part02(String fileName) {
+		return countNiceStrings(fileName, Day05::isNiceStringPart2);
+	}
+
+	private static long countNiceStrings(String fileName, Predicate<String> predicate) {
+		return AocUtils.readLines("/day05/" + fileName).stream().filter(predicate).count();
+	}
+
+	private static boolean isNiceStringPart2(String line) {
+		return containsRepeatedCharacter(line) && containsRepeatedPair(line);
+	}
+
+	private static boolean containsRepeatedCharacter(String line) {
+		if (line.length() < 3) {
+			return false;
+		}
+
+		char[] chars = line.toCharArray();
+		char c0 = chars[0];
+		char c1 = chars[1];
+		for (int i = 2; i < chars.length; ++i) {
+			char c2 = chars[i];
+			if (c0 == c2) {
+				return true;
+			}
+
+			c0 = c1;
+			c1 = c2;
+		}
+
+		return false;
+	}
+
+	private static boolean containsRepeatedPair(String line) {
+		if (line.length() < 4) {
+			return false;
+		}
+
+		Map<String, List<Position>> pairs = new HashMap<>();
+		char[] chars = line.toCharArray();
+		char c0 = chars[0];
+
+		for (int i = 1; i < chars.length; ++i) {
+			char c1 = chars[i];
+			String pair = concat(c0, c1);
+			Position position = new Position(i - 1, i);
+
+			if (!pairs.containsKey(pair)) {
+				pairs.put(pair, new ArrayList<>());
+			}
+
+			List<Position> currentPositions = pairs.get(pair);
+			if (currentPositions.isEmpty()) {
+				pairs.get(pair).add(position);
+			} else {
+				// Does it overlap with previous position?
+				Position lastPosition = AocUtils.lastElement(currentPositions);
+				if (!lastPosition.overlapWith(position)) {
+					currentPositions.add(position);
+				}
+			}
+
+			if (currentPositions.size() == 2) {
+				return true;
+			}
+
+			c0 = c1;
+		}
+
+		return false;
+	}
+
+	private static String concat(char c1, char c2) {
+		return String.valueOf(c1) + c2;
+	}
+
+	private record Position(int x, int y) {
+		boolean overlapWith(Position position) {
+			return position.x >= x && position.x <= y;
+		}
+	}
+
+	private static boolean isNiceStringPart1(String line) {
 		if (line.length() < 2) {
 			return false;
 		}
+
+		Set<Character> vowels = Set.of(
+				'a',
+				'e',
+				'i',
+				'o',
+				'u'
+		);
 
 		Set<String> disallowedSubstring = Set.of(
 				"ab",
@@ -52,7 +144,7 @@ class Day05 {
 
 		char[] input = line.toCharArray();
 		char previous = input[0];
-		int nbVowel = isVowel(previous) ? 1 : 0;
+		int nbVowel = vowels.contains(previous) ? 1 : 0;
 		boolean inARow = false;
 
 		for (int i = 1; i < input.length; ++i) {
@@ -67,7 +159,7 @@ class Day05 {
 				inARow = true;
 			}
 
-			if (isVowel(c)) {
+			if (vowels.contains(c)) {
 				nbVowel++;
 			}
 
@@ -75,9 +167,5 @@ class Day05 {
 		}
 
 		return nbVowel >= 3 && inARow;
-	}
-
-	private static boolean isVowel(char c) {
-		return VOWELS.contains(c);
 	}
 }
