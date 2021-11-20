@@ -24,48 +24,18 @@
 
 package com.github.mjeanroy.aoc2015;
 
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 
-final class AocUtils {
-	private AocUtils() {
-	}
+import static org.assertj.core.api.Assertions.assertThat;
 
-	static String readFile(String file) {
-		URL url = AocUtils.class.getResource(file);
-		if (url == null) {
-			throw new RuntimeException("File not found: " + file);
+class Day06Test {
+
+	@Nested
+	class Part01 {
+		@Test
+		void it_should_compute_input() {
+			assertThat(Day06.part01("input.txt")).isEqualTo(569999L);
 		}
-
-		try {
-			Path path = Path.of(url.toURI());
-			return Files.readString(path).trim();
-		} catch (Exception ex) {
-			throw new RuntimeException(ex);
-		}
-	}
-
-	static List<String> readLines(String file) {
-		return Arrays.stream(readFile(file).split("\n")).collect(Collectors.toList());
-	}
-
-	static long toLong(String input) {
-		return Long.parseLong(input.trim());
-	}
-
-	static int toInt(String input) {
-		return Integer.parseInt(input.trim());
-	}
-
-	static <T> T lastElement(List<T> elements) {
-		if (elements.isEmpty()) {
-			throw new RuntimeException("Cannot get last element of empty list");
-		}
-
-		return elements.get(elements.size() - 1);
 	}
 }
