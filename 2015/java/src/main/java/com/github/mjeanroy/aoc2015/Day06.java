@@ -26,6 +26,7 @@ package com.github.mjeanroy.aoc2015;
 
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -35,12 +36,22 @@ final class Day06 {
 
 	static long part01(String fileName) {
 		List<String> lines = AocUtils.readLines("/day06/" + fileName);
-		Grid grid = new Grid(1000);
+		LightGrid grid = new LightGrid(1000);
 		for (String line : lines) {
 			parseInput(line).apply(grid);
 		}
 
 		return grid.countLightOn();
+	}
+
+	static long part02(String fileName) {
+		List<String> lines = AocUtils.readLines("/day06/" + fileName);
+		BrightnessGrid grid = new BrightnessGrid(1000);
+		for (String line : lines) {
+			parseInput(line).apply(grid);
+		}
+
+		return grid.totalBrightness();
 	}
 
 	private static Instruction parseInput(String input) {
@@ -50,7 +61,7 @@ final class Day06 {
 			throw new RuntimeException("Cannot parse input: " + input);
 		}
 
-		Action action = parseAction(m.group(1));
+		Action action = Action.parse(m.group(1));
 
 		Coordinate topLeft = new Coordinate(
 				AocUtils.toInt(m.group(2)),
@@ -65,45 +76,45 @@ final class Day06 {
 		return new Instruction(action, topLeft, bottomRight);
 	}
 
-	private static Action parseAction(String action) {
-		if (action.equals("turn on")) {
-			return Action.TURN_ON;
-		}
-
-		if (action.equals("turn off")) {
-			return Action.TURN_OFF;
-		}
-
-		if (action.equals("toggle")) {
-			return Action.TOGGLE;
-		}
-
-		throw new RuntimeException("Unknown action: " + action);
-	}
-
 	private enum Action {
-		TOGGLE {
+		TOGGLE("toggle") {
 			@Override
 			void apply(Grid grid, int x, int y) {
 				grid.toggle(x, y);
 			}
 		},
 
-		TURN_OFF {
+		TURN_OFF("turn off") {
 			@Override
 			void apply(Grid grid, int x, int y) {
 				grid.turnOff(x, y);
 			}
 		},
 
-		TURN_ON {
+		TURN_ON("turn on") {
 			@Override
 			void apply(Grid grid, int x, int y) {
 				grid.turnOn(x, y);
 			}
 		};
 
+		private final String name;
+
+		Action(String name) {
+			this.name = name;
+		}
+
 		abstract void apply(Grid grid, int x, int y);
+
+		static Action parse(String input) {
+			for (Action action : Action.values()) {
+				if (action.name.equals(input)) {
+					return action;
+				}
+			}
+
+			throw new RuntimeException("Unknown action: " + input);
+		}
 	}
 
 	private record Instruction(Action action, Coordinate topLeft, Coordinate bottomRight) {
@@ -119,25 +130,34 @@ final class Day06 {
 	private record Coordinate(int x, int y) {
 	}
 
-	private static final class Grid {
+	interface Grid {
+		void turnOn(int x, int y);
+		void turnOff(int x, int y);
+		void toggle(int x, int y);
+	}
+
+	private static final class LightGrid implements Grid {
 		private final boolean[][] rows;
 
-		private Grid(int size) {
+		private LightGrid(int size) {
 			this.rows = new boolean[size][];
 			for (int i = 0; i < size; ++i) {
 				this.rows[i] = new boolean[size];
 			}
 		}
 
-		void turnOn(int x, int y) {
+		@Override
+		public void turnOn(int x, int y) {
 			action(x, y, (state) -> true);
 		}
 
-		void turnOff(int x, int y) {
+		@Override
+		public void turnOff(int x, int y) {
 			action(x, y, (state) -> false);
 		}
 
-		void toggle(int x, int y) {
+		@Override
+		public void toggle(int x, int y) {
 			action(x, y, (state) -> !state);
 		}
 
@@ -166,6 +186,56 @@ final class Day06 {
 			}
 
 			row[x] = fn.apply(row[x]);
+		}
+	}
+
+	private static final class BrightnessGrid implements Grid {
+		private final int[][] rows;
+
+		private BrightnessGrid(int size) {
+			this.rows = new int[size][];
+			for (int i = 0; i < size; ++i) {
+				this.rows[i] = new int[size];
+			}
+		}
+
+		@Override
+		public void turnOn(int x, int y) {
+			action(x, y, () -> 1);
+		}
+
+		@Override
+		public void turnOff(int x, int y) {
+			action(x, y, () -> -1);
+		}
+
+		@Override
+		public void toggle(int x, int y) {
+			action(x, y, () -> 2);
+		}
+
+		long totalBrightness() {
+			long total = 0;
+			for (int[] row : rows) {
+				for (int brightness : row) {
+					total += brightness;
+				}
+			}
+
+			return total;
+		}
+
+		private void action(int x, int y, Supplier<Integer> fn) {
+			if (y < 0 || y >= this.rows.length) {
+				throw new IndexOutOfBoundsException("Invalid coordinates y=" + y);
+			}
+
+			int[] row = this.rows[y];
+			if (x < 0 || x >= row.length) {
+				throw new IndexOutOfBoundsException("Invalid coordinates x=" + y);
+			}
+
+			row[x] = Math.max(0, row[x] + fn.get());
 		}
 	}
 }
