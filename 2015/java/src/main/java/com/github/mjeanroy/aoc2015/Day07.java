@@ -34,12 +34,31 @@ final class Day07 {
 
 	static long part01(String fileName, String wire) {
 		List<String> lines = AocUtils.readLines("/day07/" + fileName);
+		Wires wires = initializeWires(lines);
+		int result = wires.computeWire(wire);
+		return translateToUnsigned16BitValue(result);
+	}
 
+	static long part02(String fileName) {
+		List<String> lines = AocUtils.readLines("/day07/" + fileName);
+		Wires wires = initializeWires(lines);
+
+		// Take the signal you got on wire a,
+		// override wire b to that signal, and reset the other wires (including wire a). What new signal is ultimately provided to wire a?
+		int r1 = wires.computeWire("a");
+		wires.reset();
+		wires.overrideWire("b", r1);
+
+		int r2 = wires.computeWire("a");
+		return translateToUnsigned16BitValue(r2);
+	}
+
+	private static Wires initializeWires(List<String> inputs) {
 		Wires wires = new Wires();
-		for (String line : lines) {
-			String[] parts = line.split(" -> ", 2);
+		for (String input : inputs) {
+			String[] parts = input.split(" -> ", 2);
 			if (parts.length != 2) {
-				throw new RuntimeException("Cannot parse instruction: " + line);
+				throw new RuntimeException("Cannot parse instruction: " + input);
 			}
 
 			String output = parts[1].trim();
@@ -47,20 +66,22 @@ final class Day07 {
 			wires.addInstruction(rawInstruction, output);
 		}
 
-		int result = wires.computeWire(wire);
+		return wires;
+	}
 
-		// If result is negative, translate it to an unsigned 16bit value ([0, 65535])
-		// It means that -1 should be translated to 65537 (65535 (max) -> 65536 (zero) -> 65537 (-1)).
-
-		if (result < 0) {
-			return 65535 + result + 1;
+	// If result is negative, translate it to an unsigned 16bit value ([0, 65535])
+	// It means that -1 should be translated to 65537 (65535 (max) -> 65536 (zero) -> 65537 (-1)).
+	private static int translateToUnsigned16BitValue(int value) {
+		if (value < 0) {
+			return 65535 + value + 1;
 		}
 
-		if (result > 65535) {
-			return 65535 - result + 1;
+		if (value > 65535) {
+			return 65535 - value + 1;
 		}
 
-		return result;
+		return value;
+
 	}
 
 	private static class Wires {
@@ -78,6 +99,14 @@ final class Day07 {
 			}
 
 			instructions.put(output, instruction);
+		}
+
+		void reset() {
+			cache.clear();
+		}
+
+		void overrideWire(String wire, int value) {
+			cache.put(wire, value);
 		}
 
 		int computeWire(String wire) {
