@@ -34,13 +34,26 @@ final class Day08 {
 		List<String> lines = AocUtils.readLines("/day08/" + fileName);
 		long sum = 0;
 		for (String line : lines) {
-			sum += computeString(line.trim());
+			sum += computeSizeMinusInMemorySize(line.trim());
 		}
 
 		return sum;
 	}
 
-	private static int computeString(String input) {
+	static long part02(String fileName) {
+		List<String> lines = AocUtils.readLines("/day08/" + fileName);
+
+		long sum = 0;
+		for (String line : lines) {
+			sum += Math.abs(computeSizeMinusInMemorySize(
+					encode(line.trim())
+			));
+		}
+
+		return sum;
+	}
+
+	private static int computeSizeMinusInMemorySize(String input) {
 		int length = input.length();
 
 		if (length < 2) {
@@ -51,10 +64,28 @@ final class Day08 {
 			throw new RuntimeException("Invalid string representation: " + input);
 		}
 
+		return length - computeInMemorySize(input);
+	}
+
+	private static int computeEncodedSizeMinusInMemorySize(String input) {
+		int length = input.length();
+
+		if (length < 2) {
+			throw new RuntimeException("Invalid string representation: " + input);
+		}
+
+		if (input.charAt(0) != '"' || input.charAt(length - 1) != '"') {
+			throw new RuntimeException("Invalid string representation: " + input);
+		}
+
+		return length - computeInMemorySize(input);
+	}
+
+	private static int computeInMemorySize(String input) {
 		int inMemorySize = 0;
 		char[] chars = input.toCharArray();
 
-		for (int i = 1; i < length - 1; ++i) {
+		for (int i = 1; i < input.length() - 1; ++i) {
 			char c = chars[i];
 			if (c == '\\') {
 				char next = chars[i + 1];
@@ -70,6 +101,20 @@ final class Day08 {
 			inMemorySize++;
 		}
 
-		return length - inMemorySize;
+		return inMemorySize;
+	}
+
+	private static String encode(String input) {
+		StringBuilder sb = new StringBuilder("\"");
+
+		for (char c : input.toCharArray()) {
+			if (c == '"' || c == '\\') {
+				sb.append('\\');
+			}
+
+			sb.append(c);
+		}
+
+		return sb.append("\"").toString();
 	}
 }
