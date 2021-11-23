@@ -43,4 +43,17 @@ class Day09Test {
 			assertThat(Day09.part01("input.txt")).isEqualTo(117L);
 		}
 	}
+
+	@Nested
+	class Part02 {
+		@Test
+		void it_should_compute_sample() {
+			assertThat(Day09.part02("sample.txt")).isEqualTo(982L);
+		}
+
+		@Test
+		void it_should_compute_input() {
+			assertThat(Day09.part02("input.txt")).isEqualTo(909L);
+		}
+	}
 }

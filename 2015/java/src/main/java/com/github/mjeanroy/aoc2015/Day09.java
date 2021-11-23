@@ -33,12 +33,21 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.LongStream;
 
 final class Day09 {
 	private Day09() {
 	}
 
 	static long part01(String fileName) {
+		return run(fileName).min().orElseThrow(() -> new RuntimeException("No routes to compute"));
+	}
+
+	static long part02(String fileName) {
+		return run(fileName).max().orElseThrow(() -> new RuntimeException("No routes to compute"));
+	}
+
+	static LongStream run(String fileName) {
 		List<String> lines = AocUtils.readLines("/day09/" + fileName);
 		Routes routes = new Routes();
 		for (String line : lines) {
@@ -47,36 +56,27 @@ final class Day09 {
 		}
 
 		List<List<String>> permutations = permutations(routes.cities());
-		long min = Long.MAX_VALUE;
-
-		for (List<String> permutation : permutations) {
-			int distance = routes.distance(permutation);
-			if (distance < min) {
-				min = distance;
-			}
-		}
-
-		return min;
+		return permutations.stream().mapToLong(routes::distance);
 	}
 
 	// Heap Algorithm
 	// https://www.geeksforgeeks.org/heaps-algorithm-for-generating-permutations/
 	private static List<List<String>> permutations(Collection<String> inputs) {
 		List<List<String>> permutations = new ArrayList<>();
-		_permutations(new ArrayList<>(inputs), inputs.size(), inputs.size(), permutations);
+		_permutations(new ArrayList<>(inputs), inputs.size(), permutations);
 		return permutations;
 	}
 
 	// Heap Algorithm
 	// https://www.geeksforgeeks.org/heaps-algorithm-for-generating-permutations/
-	private static void _permutations(List<String> inputs, int size, int n, List<List<String>> permutations) {
+	private static void _permutations(List<String> inputs, int size, List<List<String>> permutations) {
 		// if size becomes 1 then we get a permutation
 		if (size == 1) {
 			permutations.add(new ArrayList<>(inputs));
 		}
 
 		for (int i = 0; i < size; i++) {
-			_permutations(inputs, size - 1, n, permutations);
+			_permutations(inputs, size - 1, permutations);
 
 			// if size is odd, swap 0th i.e (first) and
 			// (size-1)th i.e (last) element
@@ -115,7 +115,7 @@ final class Day09 {
 	}
 
 	private static final class Routes {
-		private Map<String, Map<String, Integer>> distances;
+		private final Map<String, Map<String, Integer>> distances;
 
 		Routes() {
 			this.distances = new HashMap<>();
