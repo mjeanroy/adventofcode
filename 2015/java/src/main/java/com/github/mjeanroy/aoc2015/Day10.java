@@ -29,8 +29,16 @@ final class Day10 {
 	}
 
 	static int part01(String input) {
+		return run(input, 40);
+	}
+
+	static int part02(String input) {
+		return run(input, 50);
+	}
+
+	private static int run(String input, int times) {
 		String output = input;
-		for (int i = 0; i < 40; ++i) {
+		for (int i = 0; i < times; ++i) {
 			output = lookAndSay(output);
 		}
 

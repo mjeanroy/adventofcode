@@ -47,4 +47,12 @@ class Day10Test {
 			assertThat(Day10.part01("3113322113")).isEqualTo(329356);
 		}
 	}
+
+	@Nested
+	class Part02 {
+		@Test
+		void it_should_compute_input() {
+			assertThat(Day10.part02("3113322113")).isEqualTo(4666278);
+		}
+	}
 }
