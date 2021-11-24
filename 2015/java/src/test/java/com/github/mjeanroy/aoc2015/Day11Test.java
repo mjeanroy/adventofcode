@@ -44,4 +44,12 @@ class Day11Test {
 			assertThat(Day11.part01("hxbxwxba")).isEqualTo("hxbxxyzz");
 		}
 	}
+
+	@Nested
+	class Part02 {
+		@Test
+		void it_should_compute_input() {
+			assertThat(Day11.part01("hxbxxyzz")).isEqualTo("hxcaabcc");
+		}
+	}
 }
